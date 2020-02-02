@@ -90,6 +90,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\git\HW1\GenomeSequenceComparer\smith-waterman;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,7 +148,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DPTable.cpp" />
     <ClCompile Include="GenomeSequenceComparer.cpp" />
+    <ClCompile Include="SmithWaterman.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DPTable.h" />
+    <ClInclude Include="SmithWaterman.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
