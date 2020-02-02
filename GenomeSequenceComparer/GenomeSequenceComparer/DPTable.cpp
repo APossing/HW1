@@ -1,6 +1,5 @@
 #include "DPTable.h"
-#include <iostream>
-using namespace std;
+
 
 DPTable::DPTable(int xLength, int yLength)
 {
@@ -44,4 +43,31 @@ void DPTable::PrintTable()
 		cout << endl;
 	}
 
+}
+
+pair<int, list<pair<int, int>>> DPTable::GetMaxCells()
+{
+	pair<int, list<pair<int, int>>> returnT = pair<int, list<pair<int, int>>>();
+	returnT.first = 0;
+	for (int i = 0; i < numRows; i++)
+	{
+		for (int j = 0; j < numCols; j++)
+		{
+			if (table[i][j].score < returnT.first)
+			{
+
+			}
+			else if (table[i][j].score > returnT.first)
+			{
+				returnT.first = table[i][j].score;
+				returnT.second = list<pair<int, int>>{ {i,j} };
+			}
+			else
+			{
+				returnT.second.push_back({ i,j });
+			}
+
+		}
+	}
+	return returnT;
 }

@@ -11,9 +11,11 @@ int main()
     DP_cell* d = t.FillInCell(0, 0, 10);
     DP_cell* c = t.FillInCell(0, 10, 10);
 
-    SmithWaterman smith("GGTTGACTA","TGTTACGG",3,-3,2,-2);
+    SmithWaterman smith("CATTCAC","CTCGCAGC",1,-1,2,-5);
 
     smith.Run();
+
+    auto q = smith.GetMaxStrings();
 
     int b = 5;
 }

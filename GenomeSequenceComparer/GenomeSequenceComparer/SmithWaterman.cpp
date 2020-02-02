@@ -8,7 +8,7 @@ SmithWaterman::SmithWaterman(string s1, string s2, double match, double misMatch
 	this->misMatch = misMatch;
 	this->h = h;
 	this->g = g;
-	this->table = new DPTable(s1.length()+1, s2.length()+1);
+	this->table = new DPTable(s1.length() + 1, s2.length() + 1);
 }
 
 DP_cell* SmithWaterman::GetCalculatedCell(int row, int col)
@@ -64,11 +64,73 @@ DP_cell* SmithWaterman::CalculateCell(int row, int col)
 
 }
 
+int SmithWaterman::FindMaxAdjacentSquareValue(int row, int col)
+{
+	int max = table->GetCell(row - 1, col)->score;
+	int tempVal = table->GetCell(row, col - 1)->score;
+	if (tempVal > max)
+		max = tempVal;
+	tempVal = table->GetCell(row - 1, col - 1)->score;
+	if (tempVal > max)
+		max = tempVal;
+
+	return max;
+}
+
+list<pair<string, string>> SmithWaterman::TraceBack(int row, int col, string cur1, string cur2)
+{
+	if ((table->GetCell(row, col)->score == 0))
+		return { {cur1,cur2} };
+
+	int max = FindMaxAdjacentSquareValue(row, col);
+	list<pair<string, string>> returnList = list<pair<string, string>>();
+
+	//if diag = 0
+	if (table->GetCell(row - 1, col - 1)->score == 0)
+	{
+		return { { s1[row - 1] + cur1, s2[col - 1] + cur2 } };
+	}
+	else
+	{
+		//insertion (up)
+		if (table->GetCell(row - 1, col)->score == max)
+		{
+			returnList.merge(TraceBack(row - 1, col, s1[row - 1] + cur1, "-" + cur2));
+		}
+
+		//deletion (left)
+		if (table->GetCell(row, col - 1)->score == max)
+		{
+			returnList.merge(TraceBack(row, col - 1, "-" + cur1, s2[col - 1] + cur2));
+		}
+
+		//direct (diag)
+		if (table->GetCell(row - 1, col - 1)->score == max)
+		{
+			returnList.merge(TraceBack(row - 1, col - 1, s1[row - 1] + cur1, s2[col - 1] + cur2));
+		}
+	}
+
+	return returnList;
+
+}
+
+list<pair<string, string>> SmithWaterman::GetMaxStrings()
+{
+	auto t = table->GetMaxCells();
+	list<pair<string, string>> returnT = list<pair<string,string>>();
+	for (auto it : t.second)
+	{
+		returnT.merge(TraceBack(it.first, it.second, "", ""));
+	}
+	return returnT;
+}
+
 bool SmithWaterman::Run()
 {
-	for (int i = 0; i < s1.length()+1; i++)
+	for (int i = 0; i < s1.length() + 1; i++)
 	{
-		for (int j = 0; j < s2.length()+1; j++)
+		for (int j = 0; j < s2.length() + 1; j++)
 		{
 			CalculateCell(i, j);
 		}
