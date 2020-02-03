@@ -24,12 +24,18 @@
     <ClCompile Include="DPTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NeedlemanWunsch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SmithWaterman.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DPTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NeedlemanWunsch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

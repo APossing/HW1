@@ -137,7 +137,7 @@ bool SmithWaterman::Run()
 	}
 
 	table->PrintTable();
-	return false;
+	return true;
 }
 
 
