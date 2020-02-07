@@ -55,7 +55,7 @@ void DPTable::PrintTable()
 	{
 		for (int j = 0; j < numCols; j++)
 		{
-			cout << table[i][j].substitutionScore << '\t';
+			cout << GetCellMax(i, j) << '\t';
 		}
 		cout << endl;
 	}

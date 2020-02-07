@@ -8,17 +8,17 @@
 int main()
 {
 
-    DPTable t(5,5);
-	
-    SmithWaterman smith("GATTACA","GCATGCU",1,-1,2,-1);
-    smith.Run();
-    auto q = smith.GetMaxStrings();
+	DPTable t(5, 5);
 
-	NeedlemanWunsch needle("GATTACA", "GCATGCU", 1, -1, 2, -1);
-    needle.Run();
-    auto qt = needle.GetMaxStrings();
+	//SmithWaterman smith("GATTACA","GCATGCU",1,-1,2,-1);
+	//smith.Run();
+	//auto q = smith.GetMaxStrings();
 
-    int b = 5;
+	NeedlemanWunsch needle("ACTGAT", "ATGAT", 1, -1, 0, -1);
+	needle.Run();
+	list<pair<string, string>> qt = needle.GetMaxStrings();
+
+	int b = 5;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

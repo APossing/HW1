@@ -5,6 +5,13 @@ struct DP_cell {
 	short insertionScore;
 	// add any other field(s) that you may need for the implementation
 };
+
+struct DP_cellFull {
+	DP_cell* cell;
+	int row;
+	int col;
+	int max;
+};
 #include <iostream>
 #include <list>
 using namespace std;

@@ -2,6 +2,14 @@
 #include <string>
 #include "DPTable.h"
 using namespace  std;
+
+enum Direction {
+	up,
+	left,
+	diagonal,
+	none
+};
+
 class NeedlemanWunsch
 {
 public:
@@ -17,14 +25,15 @@ private:
 	double h;
 	double g;
 	DPTable* table;
-	
+	Direction TracebackPrevDirection;
+
 	DP_cell* CalculateCell(int row, int col);
 	int GetMaxSubScore(int row, int col, int matchScore);
 	int GetMaxDeletionScore(int row, int col);
 	int GetMaxInsertionScore(int row, int col);
-	
+	DP_cell* GetRealCellScores(int row, int col, Direction importantDirection);
 	DP_cell* GetCalculatedCell(int row, int col);
 	list<pair<string, string>> TraceBack(int row, int col, string cur1, string cur2);
-	int FindMaxAdjacentSquareValue(int row, int col);
+	list<DP_cellFull> FindMaxAdjacentSquares(int row, int col);
 };
 
