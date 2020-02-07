@@ -33,33 +33,49 @@ list<pair<string, string>> NeedlemanWunsch::GetMaxStrings()
 DP_cell* NeedlemanWunsch::CalculateCell(int row, int col)
 {
 	if (row == 0)
-		return table->FillInCell(row, col, -1 * col);
+		return table->FillInCell(row, col, -1 * col, -1 * col, -1 * col);
 	else if (col == 0)
-		return table->FillInCell(row, col, -1 * row);
+		return table->FillInCell(row, col, -1 * row, -1 * row, -1 * row);
 
 	int matchScore = misMatch;
 	if (s1[row - 1] == s2[col - 1])
 		matchScore = match;
 
-	int maxValue = GetMaxScore(row, col, matchScore);
-	return table->FillInCell(row, col, maxValue);
+	int subScore = GetMaxSubScore(row, col, matchScore);
+	int delScore = GetMaxDeletionScore(row, col);
+	int insScore = GetMaxInsertionScore(row, col);
+
+	return table->FillInCell(row, col, subScore, delScore,insScore);
 }
 
-int NeedlemanWunsch::GetMaxScore(int row, int col, int matchScore)
+int NeedlemanWunsch::GetMaxSubScore(int row, int col, int matchScore)
 {
-	//deletion
+	auto c = GetCalculatedCell(row - 1, col - 1);
+
+	return table->GetCellMax(c) + matchScore;
+}
+int NeedlemanWunsch::GetMaxDeletionScore(int row, int col)
+{
 	DP_cell* c = GetCalculatedCell(row - 1, col);
-	int max = c->score + this->g;
+	int max = c->deletionScore + g;
 
-	//insertion
-	c = GetCalculatedCell(row, col - 1);
-	if (max < c->score + g)
-		max = c->score + g;
+	if (c->insertionScore + h + g > max)
+		max = c->insertionScore + h + g;
+	if (c->substitutionScore + h + g > max)
+		max = c->insertionScore + h + g;
 
-	//diag
-	c = GetCalculatedCell(row - 1, col - 1);
-	if (max < c->score + matchScore)
-		max = c->score + matchScore;
+	return max;
+}
+
+int NeedlemanWunsch::GetMaxInsertionScore(int row, int col)
+{
+	DP_cell* c = GetCalculatedCell(row, col - 1);
+	int max = c->deletionScore + h + g;
+
+	if (c->insertionScore + g > max)
+		max = c->insertionScore + g;
+	if (c->substitutionScore + h + g > max)
+		max = c->insertionScore + h + g;
 
 	return max;
 }

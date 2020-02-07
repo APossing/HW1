@@ -9,9 +9,7 @@ int main()
 {
 
     DPTable t(5,5);
-    DP_cell* d = t.FillInCell(0, 0, 10);
-    DP_cell* c = t.FillInCell(0, 10, 10);
-
+	
     SmithWaterman smith("GATTACA","GCATGCU",1,-1,2,-1);
     smith.Run();
     auto q = smith.GetMaxStrings();

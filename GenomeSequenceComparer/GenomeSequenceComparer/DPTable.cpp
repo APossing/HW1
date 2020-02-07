@@ -10,18 +10,35 @@ DPTable::DPTable(int xLength, int yLength)
 		table[i] = new DP_cell[numCols];
 }
 
-DP_cell* DPTable::FillInCell(int row, int col, int score)
+DP_cell* DPTable::FillInCell(int row, int col, int subScore, int delScore, int insScore)
 {
 	if (!IsValidCell(row, col))
 		return nullptr;
 	table[row][col] = DP_cell();
-	table[row][col].score = score;
+	table[row][col].substitutionScore = subScore;
+	table[row][col].deletionScore = delScore;
+	table[row][col].insertionScore = insScore;
 	return &table[row][col];
 }
 
 DP_cell* DPTable::GetCell(int row, int col)
 {
 	return &table[row][col];
+}
+
+int DPTable::GetCellMax(int row, int col)
+{
+	return GetCellMax(&table[row][col]);
+}
+
+int DPTable::GetCellMax(DP_cell* cell)
+{
+	int max = cell->substitutionScore;
+	if (cell->deletionScore > max)
+		max = cell->deletionScore;
+	if (cell->insertionScore > max)
+		max = cell->insertionScore;
+	return max;
 }
 
 bool DPTable::IsValidCell(int row, int col)
@@ -38,7 +55,7 @@ void DPTable::PrintTable()
 	{
 		for (int j = 0; j < numCols; j++)
 		{
-			cout << table[i][j].score << '\t';
+			cout << table[i][j].substitutionScore << '\t';
 		}
 		cout << endl;
 	}
@@ -53,13 +70,13 @@ pair<int, list<pair<int, int>>> DPTable::GetMaxCells()
 	{
 		for (int j = 0; j < numCols; j++)
 		{
-			if (table[i][j].score < returnT.first)
+			if (table[i][j].substitutionScore < returnT.first)
 			{
 
 			}
-			else if (table[i][j].score > returnT.first)
+			else if (table[i][j].substitutionScore > returnT.first)
 			{
-				returnT.first = table[i][j].score;
+				returnT.first = table[i][j].substitutionScore;
 				returnT.second = list<pair<int, int>>{ {i,j} };
 			}
 			else

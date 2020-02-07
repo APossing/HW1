@@ -19,7 +19,10 @@ private:
 	DPTable* table;
 	
 	DP_cell* CalculateCell(int row, int col);
-	int GetMaxScore(int row, int col, int matchScore);
+	int GetMaxSubScore(int row, int col, int matchScore);
+	int GetMaxDeletionScore(int row, int col);
+	int GetMaxInsertionScore(int row, int col);
+	
 	DP_cell* GetCalculatedCell(int row, int col);
 	list<pair<string, string>> TraceBack(int row, int col, string cur1, string cur2);
 	int FindMaxAdjacentSquareValue(int row, int col);
