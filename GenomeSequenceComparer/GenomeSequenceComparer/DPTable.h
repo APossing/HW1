@@ -11,6 +11,14 @@ struct DP_cellFull {
 	int row;
 	int col;
 	int max;
+	
+	DP_cellFull(DP_cell* cell, int row, int col, int max)
+	{
+		this->max = max;
+		this->col = col;
+		this->row = row;
+		this->cell = cell;
+	}
 };
 #include <iostream>
 #include <list>

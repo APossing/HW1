@@ -27,6 +27,9 @@
     <ClCompile Include="NeedlemanWunsch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AlignmentPrinter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SmithWaterman.h">
@@ -38,5 +41,13 @@
     <ClInclude Include="NeedlemanWunsch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AlignmentPrinter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

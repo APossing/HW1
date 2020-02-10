@@ -4,6 +4,7 @@
 #include <iostream>
 #include "SmithWaterman.h"
 #include "NeedlemanWunsch.h"
+#include "AlignmentPrinter.h"
 
 int main()
 {
@@ -14,10 +15,13 @@ int main()
 	//smith.Run();
 	//auto q = smith.GetMaxStrings();
 
-	NeedlemanWunsch needle("ACTGAT", "ATGAT", 1, -1, 0, -1);
+	NeedlemanWunsch needle("ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT", "ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTGCTAATAACCGAGAACGATTGACATTCCTCGTACAGCTACACGTACTCCGAT", 1, -2, -5, -2);
 	needle.Run();
-	list<pair<string, string>> qt = needle.GetMaxStrings();
-
+	list<Alignment*> qt = needle.GetMaxStrings();
+	AlignmentPrinter printer = AlignmentPrinter(qt.front(), "test1.txt");
+	for (auto j : qt)
+		printer.PrintAlignmentToFile(j);
+	
 	int b = 5;
 }
 

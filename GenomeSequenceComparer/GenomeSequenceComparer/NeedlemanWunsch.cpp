@@ -26,9 +26,9 @@ bool NeedlemanWunsch::Run()
 	return true;
 }
 
-list<pair<string, string>> NeedlemanWunsch::GetMaxStrings()
+list<Alignment*> NeedlemanWunsch::GetMaxStrings()
 {
-	return TraceBack(s1.length(), s2.length(), "", "");
+	return TraceBack(s1.length(), s2.length(), new Alignment);
 }
 
 DP_cell* NeedlemanWunsch::CalculateCell(int row, int col)
@@ -105,52 +105,79 @@ DP_cell* NeedlemanWunsch::GetRealCellScores(int row, int col, Direction incoming
 		recalcCell = new DP_cell();
 		recalcCell->deletionScore = trueCell->deletionScore;
 		recalcCell->insertionScore = trueCell->insertionScore + h;
-		recalcCell->substitutionScore = trueCell->substitutionScore + h;
+		recalcCell->substitutionScore = trueCell->substitutionScore;
 	}
 	else if (incomingDirection == Direction::up)
 	{
 		recalcCell = new DP_cell();
-		recalcCell->deletionScore = trueCell->deletionScore + h;
+		recalcCell->deletionScore = trueCell->deletionScore;
 		recalcCell->insertionScore = trueCell->insertionScore;
 		recalcCell->substitutionScore = trueCell->substitutionScore + h;
 	}
 	else
 	{
-		recalcCell = table->GetCell(row, col);
+		recalcCell = new DP_cell();
+		recalcCell->deletionScore = trueCell->deletionScore + h;
+		recalcCell->insertionScore = trueCell->insertionScore + h;
+		recalcCell->substitutionScore = trueCell->substitutionScore;
 	}
 
 	return recalcCell;
 }
 
-list<pair<string, string>> NeedlemanWunsch::TraceBack(int row, int col, string cur1, string cur2)
+list<Alignment*> NeedlemanWunsch::TraceBack(int row, int col, Alignment* alignment)
 {
 	if (row == 0 && col == 0)
-		return { {cur1,cur2} };
-
+		return { alignment };
+	alignment->totalLength++;
 	list<DP_cellFull> maxAdjacentSquares = FindMaxAdjacentSquares(row, col);
 	if (maxAdjacentSquares.empty())
 	{
-		return { {"why did this break", "why did this berak"} };
+		return { new Alignment() };
 	}
 
-	list<pair<string, string>> returnList = list<pair<string, string>>();
+	list<Alignment*> returnList = list<Alignment*>();
 
 	//max is 0 and one is diagonal
-	if (maxAdjacentSquares.front().max == 0 && table->GetCellMax(GetRealCellScores(row - 1, col - 1, diagonal)) == maxAdjacentSquares.front().max)
+	if (row > 0 && col > 0 && maxAdjacentSquares.front().max == 0 && table->GetCellMax(GetRealCellScores(row - 1, col - 1, diagonal)) == maxAdjacentSquares.front().max)
 	{
-		returnList.merge(TraceBack(row - 1, col - 1, s1[row - 1] + cur1, s2[col - 1] + cur2));
+		alignment->AddS1(s1[row - 1]);
+		alignment->AddS2(s2[col - 1]);
+		returnList.merge(TraceBack(row - 1, col - 1, alignment->DeepCopy()));
 	}
 	else
 	{
 		for (auto fullCell : maxAdjacentSquares)
 		{
 			if (fullCell.row < row && fullCell.col < col)
-				returnList.merge(TraceBack(fullCell.row, fullCell.col, s1[row - 1] + cur1, s2[col - 1] + cur2));
+			{
+				if (s1[row] == s2[col])
+					alignment->matches++;
+				else
+					alignment->mismatches++;
+				
+				alignment->AddS1(s1[row - 1]);
+				alignment->AddS2(s2[col - 1]);
+			}
 			else if (fullCell.row < row)
-				returnList.merge(TraceBack(fullCell.row, fullCell.col, s1[row - 1] + cur1, "-" + cur2));
+			{
+				if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
+					alignment->openingGaps++;
+				else
+					alignment->gaps++;
+				alignment->AddS1(s1[row - 1]);
+				alignment->AddS2('-');
+			}
 			else
-				returnList.merge(TraceBack(fullCell.row, fullCell.col, "-" + cur1, s2[col - 1] + cur2));
-
+			{
+				if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
+					alignment->openingGaps++;
+				else
+					alignment->gaps++;
+				alignment->AddS1('-');
+				alignment->AddS2(s2[col - 1]);
+			}
+			returnList.merge(TraceBack(fullCell.row, fullCell.col, alignment->DeepCopy()));
 		}
 	}
 
@@ -165,20 +192,18 @@ list<DP_cellFull> NeedlemanWunsch::FindMaxAdjacentSquares(int row, int col)
 	list<DP_cellFull> returnList = list<DP_cellFull>();
 
 	DP_cell* fixedScoreCell = GetRealCellScores(row - 1, col, Direction::up);
+	//DP_cell* fixedScoreCell = table->GetCell(row - 1, col);
 	if (fixedScoreCell != nullptr)
 	{
 		max = table->GetCellMax(fixedScoreCell);
 		isMax = true;
 
-		DP_cellFull fullCell = DP_cellFull();
-		fullCell.cell = fixedScoreCell;
-		fullCell.col = col;
-		fullCell.max = max;
-		fullCell.row = row - 1;
+		DP_cellFull fullCell = DP_cellFull(fixedScoreCell, row - 1, col, max);
 		returnList.push_back(fullCell);
 	}
 
 	fixedScoreCell = GetRealCellScores(row, col - 1, Direction::left);
+	//fixedScoreCell = table->GetCell(row, col - 1);
 	if (fixedScoreCell != nullptr)
 	{
 		int tempMaxVal = table->GetCellMax(fixedScoreCell);
@@ -189,16 +214,13 @@ list<DP_cellFull> NeedlemanWunsch::FindMaxAdjacentSquares(int row, int col)
 		}
 		if (tempMaxVal == max)
 		{
-			DP_cellFull fullCell = DP_cellFull();
-			fullCell.cell = fixedScoreCell;
-			fullCell.col = col - 1;
-			fullCell.max = max;
-			fullCell.row = row;
+			DP_cellFull fullCell = DP_cellFull(fixedScoreCell, row, col - 1, max);
 			returnList.push_back(fullCell);
 		}
 	}
 
 	fixedScoreCell = GetRealCellScores(row - 1, col - 1, Direction::diagonal);
+	//fixedScoreCell = table->GetCell(row - 1, col - 1);
 	if (fixedScoreCell != nullptr)
 	{
 		int tempMaxVal = table->GetCellMax(fixedScoreCell);
@@ -209,11 +231,7 @@ list<DP_cellFull> NeedlemanWunsch::FindMaxAdjacentSquares(int row, int col)
 		}
 		if (tempMaxVal == max)
 		{
-			DP_cellFull fullCell = DP_cellFull();
-			fullCell.cell = fixedScoreCell;
-			fullCell.col = col - 1;
-			fullCell.max = max;
-			fullCell.row = row - 1;
+			DP_cellFull fullCell = DP_cellFull(fixedScoreCell, row - 1, col - 1, max);
 			returnList.push_back(fullCell);
 		}
 	}

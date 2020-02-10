@@ -148,15 +148,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AlignmentPrinter.cpp" />
     <ClCompile Include="DPTable.cpp" />
     <ClCompile Include="GenomeSequenceComparer.cpp" />
     <ClCompile Include="NeedlemanWunsch.cpp" />
     <ClCompile Include="SmithWaterman.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AlignmentPrinter.h" />
     <ClInclude Include="DPTable.h" />
     <ClInclude Include="NeedlemanWunsch.h" />
     <ClInclude Include="SmithWaterman.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test1.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
