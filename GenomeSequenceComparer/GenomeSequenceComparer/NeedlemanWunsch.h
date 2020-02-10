@@ -56,6 +56,11 @@ public:
 	{
 		return gaps / totalLength;
 	}
+
+	int GetScore(double match, double mismatch, double h, double g)
+	{
+		return gaps * g + match * matches + mismatch * mismatches + h * openingGaps + gaps * g;
+	}
 	string s1;
 	string s2;
 	int optimalScore;

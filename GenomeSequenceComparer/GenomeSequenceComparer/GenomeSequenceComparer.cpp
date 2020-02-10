@@ -19,8 +19,23 @@ int main()
 	needle.Run();
 	list<Alignment*> qt = needle.GetMaxStrings();
 	AlignmentPrinter printer = AlignmentPrinter(qt.front(), "test1.txt");
+	//for (auto j : qt)
+	//	printer.PrintAlignmentToFile(j);
+	int max = 0;
 	for (auto j : qt)
-		printer.PrintAlignmentToFile(j);
+	{
+		if (j->GetScore(1, -2, -5, -2) > max)
+		{
+			max = j->GetScore(1, -2, -5, -2);
+		}
+	}
+	for (auto j : qt)
+	{
+		if (j->GetScore(1, -2, -5, -2) == max)
+		{
+			printer.PrintAlignmentToFile(j);
+		}
+	}
 	
 	int b = 5;
 }

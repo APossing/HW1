@@ -110,9 +110,9 @@ DP_cell* NeedlemanWunsch::GetRealCellScores(int row, int col, Direction incoming
 	else if (incomingDirection == Direction::up)
 	{
 		recalcCell = new DP_cell();
-		recalcCell->deletionScore = trueCell->deletionScore;
+		recalcCell->deletionScore = trueCell->deletionScore + h;
 		recalcCell->insertionScore = trueCell->insertionScore;
-		recalcCell->substitutionScore = trueCell->substitutionScore + h;
+		recalcCell->substitutionScore = trueCell->substitutionScore;
 	}
 	else
 	{
@@ -130,7 +130,15 @@ list<Alignment*> NeedlemanWunsch::TraceBack(int row, int col, Alignment* alignme
 	if (row == 0 && col == 0)
 		return { alignment };
 	alignment->totalLength++;
-	list<DP_cellFull> maxAdjacentSquares = FindMaxAdjacentSquares(row, col);
+	list<DP_cellFull> maxAdjacentSquares = list<DP_cellFull>();
+	DP_cell* cell = table->GetCell(row, col);
+	int max = table->GetCellMax(row, col);
+	if (cell->deletionScore == max)
+		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col), row - 1, col, max));
+	if (cell->insertionScore == max)
+		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row, col - 1), row, col - 1, max));
+	if (cell->substitutionScore == max)
+		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col - 1), row - 1, col - 1, max));
 	if (maxAdjacentSquares.empty())
 	{
 		return { new Alignment() };
@@ -151,11 +159,11 @@ list<Alignment*> NeedlemanWunsch::TraceBack(int row, int col, Alignment* alignme
 		{
 			if (fullCell.row < row && fullCell.col < col)
 			{
-				if (s1[row] == s2[col])
+				if (s1[row-1] == s2[col-1])
 					alignment->matches++;
 				else
 					alignment->mismatches++;
-				
+
 				alignment->AddS1(s1[row - 1]);
 				alignment->AddS2(s2[col - 1]);
 			}
@@ -163,8 +171,7 @@ list<Alignment*> NeedlemanWunsch::TraceBack(int row, int col, Alignment* alignme
 			{
 				if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
 					alignment->openingGaps++;
-				else
-					alignment->gaps++;
+				alignment->gaps++;
 				alignment->AddS1(s1[row - 1]);
 				alignment->AddS2('-');
 			}
@@ -172,8 +179,7 @@ list<Alignment*> NeedlemanWunsch::TraceBack(int row, int col, Alignment* alignme
 			{
 				if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
 					alignment->openingGaps++;
-				else
-					alignment->gaps++;
+				alignment->gaps++;
 				alignment->AddS1('-');
 				alignment->AddS2(s2[col - 1]);
 			}
@@ -188,7 +194,7 @@ list<DP_cellFull> NeedlemanWunsch::FindMaxAdjacentSquares(int row, int col)
 {
 	int max = 0;
 	bool isMax = false;
-
+	DP_cell* thisCell = table->GetCell(row, col);
 	list<DP_cellFull> returnList = list<DP_cellFull>();
 
 	DP_cell* fixedScoreCell = GetRealCellScores(row - 1, col, Direction::up);
