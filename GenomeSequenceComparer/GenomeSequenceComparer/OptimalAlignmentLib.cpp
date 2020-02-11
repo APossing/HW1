@@ -44,7 +44,15 @@ bool OptimalAlignment::RunSmithWaterman()
 
 list<Alignment*> OptimalAlignment::GetGlobalMaxStrings()
 {
-	return TraceBack(s1.length(), s2.length(), new Alignment);
+	return TraceBackGlobal(s1.length(), s2.length(), new Alignment);
+}
+list<list<Alignment*>> OptimalAlignment::GetLocalMaxStrings()
+{
+	list<DP_cellFull*> startingLocals = table->GetMaxCells();
+	list<list<Alignment*>> returnAlignments = list<list<Alignment*>>();
+	for (auto local: startingLocals)
+		returnAlignments.push_back(TraceBackLocal(s1.length(), s2.length(), new Alignment));
+	return returnAlignments;
 }
 
 DP_cell* OptimalAlignment::CalculateCell(int row, int col)
@@ -149,7 +157,7 @@ list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col)
 	return maxAdjacentSquares;
 }
 
-list<Alignment*> OptimalAlignment::TraceBack(int row, int col, Alignment* alignment)
+list<Alignment*> OptimalAlignment::TraceBackGlobal(int row, int col, Alignment* alignment)
 {
 	if (row == 0 && col == 0)
 		return { alignment };
@@ -188,7 +196,59 @@ list<Alignment*> OptimalAlignment::TraceBack(int row, int col, Alignment* alignm
 			alignment->AddS1('-');
 			alignment->AddS2(s2[col - 1]);
 		}
-		returnList.merge(TraceBack(fullCell.row, fullCell.col, alignment->DeepCopy()));
+		returnList.merge(TraceBackGlobal(fullCell.row, fullCell.col, alignment->DeepCopy()));
+	}
+
+	return returnList;
+}
+
+list<Alignment*> OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignment)
+{
+	if (row == 0 && col == 0)
+		return { alignment };
+	alignment->totalLength++;
+	list<DP_cellFull> maxAdjacentSquares = GetMaxAdjacentCells(row, col);
+	if (maxAdjacentSquares.empty())
+		return { new Alignment() };
+
+	list<Alignment*> returnList = list<Alignment*>();
+
+	//max is 0 and one is diagonal
+	if (table->GetCell(row, col)->substitutionScore == 0 && table->GetCellMax(row, col) == 0)
+	{
+		alignment->AddS1(s1[row - 1]);
+		alignment->AddS2(s2[col - 1]);
+		return { alignment };
+	}
+	for (auto fullCell : maxAdjacentSquares)
+	{
+		if (fullCell.row < row && fullCell.col < col)
+		{
+			if (s1[row - 1] == s2[col - 1])
+				alignment->matches++;
+			else
+				alignment->mismatches++;
+
+			alignment->AddS1(s1[row - 1]);
+			alignment->AddS2(s2[col - 1]);
+		}
+		else if (fullCell.row < row)
+		{
+			if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
+				alignment->openingGaps++;
+			alignment->gaps++;
+			alignment->AddS1(s1[row - 1]);
+			alignment->AddS2('-');
+		}
+		else
+		{
+			if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
+				alignment->openingGaps++;
+			alignment->gaps++;
+			alignment->AddS1('-');
+			alignment->AddS2(s2[col - 1]);
+		}
+		returnList.merge(TraceBackLocal(fullCell.row, fullCell.col, alignment->DeepCopy()));
 	}
 
 	return returnList;

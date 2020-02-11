@@ -5,7 +5,7 @@
 #include "SmithWaterman.h"
 #include "NeedlemanWunsch.h"
 #include "AlignmentPrinter.h"
-
+#include "OptimalAlignmentLib.h"
 int main()
 {
 
@@ -15,28 +15,53 @@ int main()
 	//smith.Run();
 	//auto q = smith.GetMaxStrings();
 
-	NeedlemanWunsch needle("ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT", "ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTGCTAATAACCGAGAACGATTGACATTCCTCGTACAGCTACACGTACTCCGAT", 1, -2, -5, -2);
-	needle.Run();
-	list<Alignment*> qt = needle.GetMaxStrings();
-	AlignmentPrinter printer = AlignmentPrinter(qt.front(), "test1.txt");
+	//NeedlemanWunsch needle("ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT", "ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTGCTAATAACCGAGAACGATTGACATTCCTCGTACAGCTACACGTACTCCGAT", 1, -2, -5, -2);
+	//needle.Run();
+	//list<Alignment*> qt = needle.GetMaxStrings();
+	//AlignmentPrinter printer = AlignmentPrinter(qt.front(), "test1.txt");
 	//for (auto j : qt)
 	//	printer.PrintAlignmentToFile(j);
+	//int max = 0;
+	//for (auto j : qt)
+	//{
+	//	if (j->GetScore(1, -2, -5, -2) > max)
+	//	{
+	//		max = j->GetScore(1, -2, -5, -2);
+	//	}
+	//}
+	//for (auto j : qt)
+	//{
+	//	if (j->GetScore(1, -2, -5, -2) == max)
+	//	{
+	//		printer.PrintAlignmentToFile(j);
+	//	}
+	//}
+
+	OptimalAlignment optim = OptimalAlignment("ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT", "ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTGCTAATAACCGAGAACGATTGACATTCCTCGTACAGCTACACGTACTCCGAT", 1, -2, -5, -2);
+	optim.RunSmithWaterman();
+	list<list<Alignment*>> qt = optim.GetLocalMaxStrings();
+	AlignmentPrinter printer = AlignmentPrinter(qt.front().front(), "test1.txt");
 	int max = 0;
-	for (auto j : qt)
+	for (auto k : qt)
 	{
-		if (j->GetScore(1, -2, -5, -2) > max)
+		for (auto j : k)
 		{
-			max = j->GetScore(1, -2, -5, -2);
+			if (j->GetScore(1, -2, -5, -2) > max)
+			{
+				max = j->GetScore(1, -2, -5, -2);
+			}
 		}
 	}
-	for (auto j : qt)
+	for (auto k : qt)
 	{
-		if (j->GetScore(1, -2, -5, -2) == max)
+		for (auto j : k)
 		{
-			printer.PrintAlignmentToFile(j);
+			if (j->GetScore(1, -2, -5, -2) == max)
+			{
+				printer.PrintAlignmentToFile(j);
+			}
 		}
 	}
-	
 	int b = 5;
 }
 

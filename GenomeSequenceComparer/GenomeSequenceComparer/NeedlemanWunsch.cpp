@@ -117,35 +117,45 @@ list<Alignment*> NeedlemanWunsch::TraceBack(int row, int col, Alignment* alignme
 
 	list<Alignment*> returnList = list<Alignment*>();
 
-	for (auto fullCell : maxAdjacentSquares)
+	//max is 0 and one is diagonal
+	if (row > 0 && col > 0 && maxAdjacentSquares.front().max == 0 && table->GetCellMax(table->GetCell(row - 1, col - 1)) == maxAdjacentSquares.front().max)
 	{
-		if (fullCell.row < row && fullCell.col < col)
+		alignment->AddS1(s1[row - 1]);
+		alignment->AddS2(s2[col - 1]);
+		returnList.merge(TraceBack(row - 1, col - 1, alignment->DeepCopy()));
+	}
+	else
+	{
+		for (auto fullCell : maxAdjacentSquares)
 		{
-			if (s1[row - 1] == s2[col - 1])
-				alignment->matches++;
-			else
-				alignment->mismatches++;
+			if (fullCell.row < row && fullCell.col < col)
+			{
+				if (s1[row-1] == s2[col-1])
+					alignment->matches++;
+				else
+					alignment->mismatches++;
 
-			alignment->AddS1(s1[row - 1]);
-			alignment->AddS2(s2[col - 1]);
+				alignment->AddS1(s1[row - 1]);
+				alignment->AddS2(s2[col - 1]);
+			}
+			else if (fullCell.row < row)
+			{
+				if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
+					alignment->openingGaps++;
+				alignment->gaps++;
+				alignment->AddS1(s1[row - 1]);
+				alignment->AddS2('-');
+			}
+			else
+			{
+				if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
+					alignment->openingGaps++;
+				alignment->gaps++;
+				alignment->AddS1('-');
+				alignment->AddS2(s2[col - 1]);
+			}
+			returnList.merge(TraceBack(fullCell.row, fullCell.col, alignment->DeepCopy()));
 		}
-		else if (fullCell.row < row)
-		{
-			if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
-				alignment->openingGaps++;
-			alignment->gaps++;
-			alignment->AddS1(s1[row - 1]);
-			alignment->AddS2('-');
-		}
-		else
-		{
-			if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
-				alignment->openingGaps++;
-			alignment->gaps++;
-			alignment->AddS1('-');
-			alignment->AddS2(s2[col - 1]);
-		}
-		returnList.merge(TraceBack(fullCell.row, fullCell.col, alignment->DeepCopy()));
 	}
 
 	return returnList;

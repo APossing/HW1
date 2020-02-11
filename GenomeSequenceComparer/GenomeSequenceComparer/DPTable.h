@@ -35,7 +35,7 @@ public:
 	int GetCellMax(DP_cell* cell);
 	bool IsValidCell(int row, int col);
 	void PrintTable();
-	pair<int, list<pair<int, int>>> GetMaxCells();
+	list<DP_cellFull*> GetMaxCells();
 private:
 	DP_cell** table;
 	int numRows;

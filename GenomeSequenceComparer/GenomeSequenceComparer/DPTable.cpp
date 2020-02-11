@@ -69,26 +69,26 @@ void DPTable::PrintTable()
 
 }
 
-pair<int, list<pair<int, int>>> DPTable::GetMaxCells()
+list<DP_cellFull*> DPTable::GetMaxCells()
 {
-	pair<int, list<pair<int, int>>> returnT = pair<int, list<pair<int, int>>>();
-	returnT.first = 0;
+	list<DP_cellFull*> returnT = list<DP_cellFull*>();
+	int max = 0; //0,0 will always be 0 so this is ok...
 	for (int i = 0; i < numRows; i++)
 	{
 		for (int j = 0; j < numCols; j++)
 		{
-			if (table[i][j].substitutionScore < returnT.first)
+			if (GetCellMax(&table[i][j]) < max)
 			{
 
 			}
-			else if (table[i][j].substitutionScore > returnT.first)
+			else if (GetCellMax(&table[i][j]) > max)
 			{
-				returnT.first = table[i][j].substitutionScore;
-				returnT.second = list<pair<int, int>>{ {i,j} };
+				max = GetCellMax(&table[i][j]);
+				returnT = list<DP_cellFull*>{ new DP_cellFull(&table[i][j], i, j, max) };
 			}
 			else
 			{
-				returnT.second.push_back({ i,j });
+				returnT.push_back({ new DP_cellFull(&table[i][j], i, j, max) });
 			}
 
 		}
