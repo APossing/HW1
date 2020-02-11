@@ -27,7 +27,7 @@ private:
 	int GetMaxDeletionScore(int row, int col);
 	int GetMaxInsertionScore(int row, int col);
 	DP_cell* GetCalculatedCell(int row, int col);
-	list<Alignment*> TraceBackGlobal(int row, int col, Alignment* alignment);
+	pair < list<pair<DP_cellFull*, Alignment*>>, Alignment*> TraceBackGlobal(int row, int col, Alignment* alignment);
 	list<Alignment*> TraceBackLocal(int row, int col, Alignment* alignment);
 	list<DP_cellFull> GetMaxAdjacentCells(int row, int col);
 };

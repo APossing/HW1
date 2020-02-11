@@ -26,7 +26,7 @@ bool OptimalAlignment::RunNeedlemanWunsch()
 		for (int j = 0; j < s2.length() + 1; j++)
 			CalculateCell(i, j);
 
-//	table->PrintTable();
+	//	table->PrintTable();
 	return true;
 }
 
@@ -38,19 +38,30 @@ bool OptimalAlignment::RunSmithWaterman()
 		for (int j = 0; j < s2.length() + 1; j++)
 			CalculateCell(i, j, 0);
 
-//	table->PrintTable();
+	//	table->PrintTable();
 	return true;
 }
 
 list<Alignment*> OptimalAlignment::GetGlobalMaxStrings()
 {
-	return TraceBackGlobal(s1.length(), s2.length(), new Alignment(this->table->GetCellMax(s1.length(), s2.length())));
+	list<Alignment*> complete = list<Alignment*>();
+	pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*> returnPair;
+	list < pair<DP_cellFull*, Alignment*>> ToDo = { {new DP_cellFull(nullptr, s1.length(), s2.length(), 0),new Alignment(this->table->GetCellMax(s1.length(), s2.length()))} };
+	do
+	{
+		returnPair = TraceBackGlobal(ToDo.front().first->row, ToDo.front().first->col, ToDo.front().second);
+		ToDo.pop_front();
+		complete.push_back(returnPair.second);
+		ToDo.splice(ToDo.end(), returnPair.first);
+	} while (!ToDo.empty());
+
+	return complete;
 }
 list<list<Alignment*>> OptimalAlignment::GetLocalMaxStrings()
 {
 	list<DP_cellFull*> startingLocals = table->GetMaxCells();
 	list<list<Alignment*>> returnAlignments = list<list<Alignment*>>();
-	for (auto local: startingLocals)
+	for (auto local : startingLocals)
 		returnAlignments.push_back(TraceBackLocal(s1.length(), s2.length(), new Alignment));
 	return returnAlignments;
 }
@@ -160,7 +171,7 @@ list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col)
 		return maxAdjacentSquares;
 	}
 
-	
+
 	if (cell->deletionScore == max)
 		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col), row - 1, col, max));
 	if (cell->insertionScore == max)
@@ -170,19 +181,23 @@ list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col)
 	return maxAdjacentSquares;
 }
 
-list<Alignment*> OptimalAlignment::TraceBackGlobal(int row, int col, Alignment* alignment)
+pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*> OptimalAlignment::TraceBackGlobal(int row, int col, Alignment* alignment)
 {
 
 	if (table->GetCellMax(row, col) > alignment->optimalScore)
 		alignment->optimalScore = table->GetCellMax(row, col);
 
-	
+	pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*> returnP = pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*>();
+
 	if (row == 0 && col == 0)
-		return { alignment };
+	{
+		returnP.second = alignment;
+		return returnP;
+	}
 	alignment->totalLength++;
 	list<DP_cellFull> maxAdjacentSquares = GetMaxAdjacentCells(row, col);
 	if (maxAdjacentSquares.empty())
-		return { new Alignment() };
+		return { };
 
 	list<Alignment*> returnList = list<Alignment*>();
 
@@ -214,10 +229,14 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row, int col, Alignment* 
 			alignment->AddS1('-');
 			alignment->AddS2(s2[col - 1]);
 		}
-		returnList.merge(TraceBackGlobal(fullCell.row, fullCell.col, alignment->DeepCopy()));
+		if (fullCell.row != maxAdjacentSquares.front().row || fullCell.col != maxAdjacentSquares.front().col)
+			returnP.first.push_back({ new DP_cellFull(fullCell), alignment });
+		else
+			returnP = TraceBackGlobal(fullCell.row, fullCell.col, alignment->DeepCopy());
+
 	}
 
-	return returnList;
+	return returnP;
 }
 
 list<Alignment*> OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignment)
