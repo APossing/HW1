@@ -12,6 +12,18 @@ Alignment::Alignment()
 	s2 = "";
 }
 
+Alignment::Alignment(int optimalScore)
+{
+	this->optimalScore = optimalScore;
+	this->matches = 0;
+	this->mismatches = 0;
+	this->gaps = 0;
+	this->openingGaps = 0;
+	this->totalLength = 0;
+	s1 = "";
+	s2 = "";
+}
+
 Alignment::Alignment(string s1, string s2, int optimalScore, int matches, int mismatches, int gaps, int openingGaps, int totalLength)
 {
 	this->optimalScore = optimalScore;

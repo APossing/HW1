@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 		optim.RunNeedlemanWunsch();
 		list<Alignment*> qt = optim.GetGlobalMaxStrings();
 		AlignmentPrinter printer = AlignmentPrinter(qt.front(), "test1.txt");
-		int max = 0;
+		int max = qt.front()->GetScore(params.match, params.mismatch, params.h, params.g);
 		for (auto j : qt)
 		{
 			if (j->GetScore(params.match, params.mismatch, params.h, params.g) > max)

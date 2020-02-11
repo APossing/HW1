@@ -1,4 +1,23 @@
-ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT
-|||||| ||||   ||||||||||||||||||||||||||||| |||||||||||||||||||           ||||||||||||||||||||| |||||||||   |||||||||||||||||
-ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTGCTA-----------ATAACCGAGAACGATTGACATTCCTCGTACA---GCTACACGTACTCCGAT
+Scores: match = 1, mismatch = -2, h = -5, g = -1
+
+Sequence 1 = "NC_000007.14:c128775790-128772489", length = 70 characters
+Sequence 2 = "NC_000072.6:c29380513-29376671", length = 70 characters
+
+s1	1	------------ATGAGAAAAATGTCGGAGGAAGAGTTTTATCTGTTCAAAAATATCTCT	49
+		            | |||     ||| ||  |||| ||  || | |   || |||      
+s2	1	CTGTATCTTTAAAGGAGGGTGCTGTAGG--GAAGGGTGATAGCAG---AAGAATCGTCTA	56
+
+s1	49	TCAGTGGGGCCGTGGGATGGGC	71
+		| || ||| |||      | | 
+s2	56	TAAGAGGGACCG------GAG-	71
+
+
+
+
+report:
+
+global optimal score = 0
+
+number of: matches = 35, mismatches = 23, gaps = 24, opening gaps = 15
+identities = 35/82(42%), gaps = 24/82(29%)
 

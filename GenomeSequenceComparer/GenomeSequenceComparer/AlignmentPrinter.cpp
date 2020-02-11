@@ -1,10 +1,10 @@
 #include "AlignmentPrinter.h"
 
-AlignmentPrinter::AlignmentPrinter(Alignment *a, string fileName)
+AlignmentPrinter::AlignmentPrinter(Alignment* a, string fileName)
 {
 	this->alignment = a;
 	this->fileName = fileName;
-	
+
 	this->file = fstream();
 	this->file.open(this->fileName);
 }
@@ -25,9 +25,9 @@ void AlignmentPrinter::PrintAlignmentToFile()
 }
 void AlignmentPrinter::PrintAlignmentToFile(Alignment* a, Parameters params, MultiSequenceFasta sequenceInfo)
 {
-	file << "Scores: Match = " << params.match << ", mismatch = " << params.mismatch << ", h = " << params.h << ", g = " << params.g << endl;
-	file << "Sequence 1 = \""<< sequenceInfo.name1 <<"\", length = " << sequenceInfo.s1.length() << " characters" << endl;
-	file << "Sequence 1 = \"" << sequenceInfo.name2 <<"\", length = " << sequenceInfo.s2.length() << " characters" << endl << endl;
+	file << "Scores: match = " << params.match << ", mismatch = " << params.mismatch << ", h = " << params.h << ", g = " << params.g << endl << endl;
+	file << "Sequence 1 = \"" << sequenceInfo.name1 << "\", length = " << sequenceInfo.s1.length() << " characters" << endl;
+	file << "Sequence 2 = \"" << sequenceInfo.name2 << "\", length = " << sequenceInfo.s2.length() << " characters" << endl << endl;
 
 	char prev = ' ';
 
@@ -47,7 +47,7 @@ void AlignmentPrinter::PrintAlignmentToFile(Alignment* a, Parameters params, Mul
 
 		for (int j = 0; j < 60 && i * 60 + j < a->s1.length(); j++)
 		{
-			if (a->s1[j] == a->s2[j] && a->s1[j] != '-')
+			if (a->s1[i * 60 + j] == a->s2[i * 60 + j] && a->s1[i * 60 + j] != '-')
 				file << '|';
 			else
 				file << ' ';
@@ -61,8 +61,18 @@ void AlignmentPrinter::PrintAlignmentToFile(Alignment* a, Parameters params, Mul
 			if (a->s2[i * 60 + j] != '-')
 				s2Count++;
 		}
-		file << "\t" << s1Count << endl << endl;
+		file << "\t" << s2Count << endl << endl;
 	}
-	file << endl;
-	file << a->s2 << endl << endl;
+	file << endl << endl << endl;
+
+	file << "report:" << endl << endl;
+	file << "global optimal score = " << a->optimalScore << endl << endl;
+	file << "number of: matches = " << a->matches << ", mismatches = " << a->mismatches << ", gaps = " << a->gaps << ", opening gaps = " << a->openingGaps << endl;
+	file << "identities = " << a->matches << "/" <<a->s1.length()<< "(" << (int)(a->IdentityPercentage()*100)<< "%), gaps = " << a->gaps << "/" << a->s1.length() << "(" << (int)(a->GapsPercentage() * 100) << "%)" <<endl;
+
+
+
+
+
+
 }

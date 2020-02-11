@@ -44,7 +44,7 @@ bool OptimalAlignment::RunSmithWaterman()
 
 list<Alignment*> OptimalAlignment::GetGlobalMaxStrings()
 {
-	return TraceBackGlobal(s1.length(), s2.length(), new Alignment);
+	return TraceBackGlobal(s1.length(), s2.length(), new Alignment(this->table->GetCellMax(s1.length(), s2.length())));
 }
 list<list<Alignment*>> OptimalAlignment::GetLocalMaxStrings()
 {
@@ -148,6 +148,19 @@ list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col)
 	list<DP_cellFull> maxAdjacentSquares = list<DP_cellFull>();
 	DP_cell* cell = table->GetCell(row, col);
 	int max = table->GetCellMax(row, col);
+
+	if (row == 0)
+	{
+		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row, col - 1), row, col - 1, max));
+		return maxAdjacentSquares;
+	}
+	if (col == 0)
+	{
+		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col), row - 1, col, max));
+		return maxAdjacentSquares;
+	}
+
+	
 	if (cell->deletionScore == max)
 		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col), row - 1, col, max));
 	if (cell->insertionScore == max)
@@ -159,6 +172,11 @@ list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col)
 
 list<Alignment*> OptimalAlignment::TraceBackGlobal(int row, int col, Alignment* alignment)
 {
+
+	if (table->GetCellMax(row, col) > alignment->optimalScore)
+		alignment->optimalScore = table->GetCellMax(row, col);
+
+	
 	if (row == 0 && col == 0)
 		return { alignment };
 	alignment->totalLength++;

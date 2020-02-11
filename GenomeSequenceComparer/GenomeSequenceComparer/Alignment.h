@@ -5,6 +5,7 @@ class Alignment
 {
 public:
 	Alignment();
+	Alignment(int optimalScore);
 	Alignment(string s1, string s2, int optimalScore, int matches, int mismatches, int gaps, int openingGaps, int totalLength);
 	Alignment* DeepCopy()
 	{
@@ -15,11 +16,11 @@ public:
 
 	double IdentityPercentage()
 	{
-		return matches / totalLength;
+		return (double)matches / totalLength;
 	}
 	double GapsPercentage()
 	{
-		return gaps / totalLength;
+		return (double)gaps / totalLength;
 	}
 
 	int GetScore(double match, double mismatch, double h, double g)
