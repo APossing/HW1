@@ -1,22 +1,78 @@
-Scores: match = 1, mismatch = -2, h = -5, g = -1
+Scores: match = 1, mismatch = -2, h = -5, g = -2
 
-Sequence 1 = "NC_000007.14:c128775790-128772489", length = 70 characters
-Sequence 2 = "NC_000072.6:c29380513-29376671", length = 70 characters
+Sequence 1 = "s1", length = 125 characters
+Sequence 2 = "s2", length = 111 characters
 
-s1	1	------------ATGAGAAAAATGTCGGAGGAAGAGTTTTATCTGTTCAAAAATATCTCT	49
-		            | |||     ||| ||  |||| ||  || | |   || |||      
-s2	1	CTGTATCTTTAAAGGAGGGTGCTGTAGG--GAAGGGTGATAGCAG---AAGAATCGTCTA	56
+s1	1	ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTG	61
+		|||||| ||||   ||||||||||||||||||||||||||||| ||||||||||||||||
+s2	1	ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTG	61
 
-s1	49	TCAGTGGGGCCGTGGGATGGGC	71
-		| || ||| |||      | | 
-s2	56	TAAGAGGGACCG------GAG-	71
+s1	61	CTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACT	121
+		|||           ||||||||||||||||||||| |||||||||   ||||||||||||
+s2	61	CTA-----------ATAACCGAGAACGATTGACATTCCTCGTACA---GCTACACGTACT	107
+
+s1	121	CCGAT	126
+		|||||
+s2	107	CCGAT	112
 
 
 
 
 report:
 
-global optimal score = 0
+global optimal score = 55
 
-number of: matches = 35, mismatches = 23, gaps = 24, opening gaps = 15
-identities = 35/82(42%), gaps = 24/82(29%)
+number of: matches = 105, mismatches = 6, gaps = 14, opening gaps = 2
+identities = 105/125(-2147483648%), gaps = 14/125(-2147483648%)
+Scores: match = 1, mismatch = -2, h = -5, g = -2
+
+Sequence 1 = "s1", length = 125 characters
+Sequence 2 = "s2", length = 111 characters
+
+s1	1	ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTG	61
+		|||||| ||||   ||||||||||||||||||||||||||||| ||||||||||||||||
+s2	1	ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTG	61
+
+s1	61	CTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACT	121
+		||| ||   |    ||||||||||||||||||||| |||||||| || ||||||||||||
+s2	61	CTA-AA---A----ATAACCGAGAACGATTGACATTCCTCGTAC-CA-GCTACACGTACT	111
+
+s1	121	CCGAT	126
+		|||||
+s2	111	CCGAT	116
+
+
+
+
+report:
+
+global optimal score = 55
+
+number of: matches = 109, mismatches = 6, gaps = 10, opening gaps = 5
+identities = 109/125(-2147483648%), gaps = 10/125(-2147483648%)
+Scores: match = 1, mismatch = -2, h = -5, g = -2
+
+Sequence 1 = "s1", length = 125 characters
+Sequence 2 = "s2", length = 111 characters
+
+s1	1	ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTG	61
+		|||||| ||||   ||||||||||||||||||||||||||||| ||||||||||||||||
+s2	1	ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTG	61
+
+s1	61	CTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACT	121
+		||| ||   |    ||||||||||||||||||||| ||||||| ||| ||||||||||||
+s2	61	CTA-AA---A----ATAACCGAGAACGATTGACATTCCTCGTA-ACA-GCTACACGTACT	111
+
+s1	121	CCGAT	126
+		|||||
+s2	111	CCGAT	116
+
+
+
+
+report:
+
+global optimal score = 55
+
+number of: matches = 109, mismatches = 6, gaps = 10, opening gaps = 5
+identities = 109/125(-2147483648%), gaps = 10/125(-2147483648%)

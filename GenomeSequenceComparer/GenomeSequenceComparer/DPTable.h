@@ -19,6 +19,10 @@ struct DP_cellFull {
 		this->row = row;
 		this->cell = cell;
 	}
+	DP_cellFull* DeepCopy()
+	{
+		return new DP_cellFull(this->cell, this->row, this->col, this->max);
+	}
 };
 #include <iostream>
 #include <list>

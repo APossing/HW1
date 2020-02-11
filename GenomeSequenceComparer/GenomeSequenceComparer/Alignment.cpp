@@ -8,8 +8,10 @@ Alignment::Alignment()
 	this->gaps = 0;
 	this->openingGaps = 0;
 	this->totalLength = 0;
-	s1 = "";
-	s2 = "";
+	this->s1 = "";
+	this->s2 = "";
+	this->score = 0;
+	this->hasBeenScored = false;
 }
 
 Alignment::Alignment(int optimalScore)
@@ -20,11 +22,13 @@ Alignment::Alignment(int optimalScore)
 	this->gaps = 0;
 	this->openingGaps = 0;
 	this->totalLength = 0;
-	s1 = "";
-	s2 = "";
+	this->s1 = "";
+	this->s2 = "";
+	this->score = 0;
+	this->hasBeenScored = false;
 }
 
-Alignment::Alignment(string s1, string s2, int optimalScore, int matches, int mismatches, int gaps, int openingGaps, int totalLength)
+Alignment::Alignment(string s1, string s2, int optimalScore, int matches, int mismatches, int gaps, int openingGaps, int totalLength, bool hasBeenScored, int score)
 {
 	this->optimalScore = optimalScore;
 	this->matches = matches;
@@ -34,6 +38,8 @@ Alignment::Alignment(string s1, string s2, int optimalScore, int matches, int mi
 	this->totalLength = totalLength;
 	this->s1 = s1;
 	this->s2 = s2;
+	this->hasBeenScored = hasBeenScored;
+	this->score = score;
 }
 
 void Alignment::AddS1(char c)

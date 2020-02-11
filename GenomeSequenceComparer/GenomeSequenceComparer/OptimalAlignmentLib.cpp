@@ -44,18 +44,7 @@ bool OptimalAlignment::RunSmithWaterman()
 
 list<Alignment*> OptimalAlignment::GetGlobalMaxStrings()
 {
-	list<Alignment*> complete = list<Alignment*>();
-	pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*> returnPair;
-	list < pair<DP_cellFull*, Alignment*>> ToDo = { {new DP_cellFull(nullptr, s1.length(), s2.length(), 0),new Alignment(this->table->GetCellMax(s1.length(), s2.length()))} };
-	do
-	{
-		returnPair = TraceBackGlobal(ToDo.front().first->row, ToDo.front().first->col, ToDo.front().second);
-		ToDo.pop_front();
-		complete.push_back(returnPair.second);
-		ToDo.splice(ToDo.end(), returnPair.first);
-	} while (!ToDo.empty());
-
-	return complete;
+	return TraceBackGlobal(s1.length(), s2.length(), new Alignment());
 }
 list<list<Alignment*>> OptimalAlignment::GetLocalMaxStrings()
 {
@@ -171,72 +160,111 @@ list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col)
 		return maxAdjacentSquares;
 	}
 
-
+	if (cell->substitutionScore == max)
+		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col - 1), row - 1, col - 1, max));
 	if (cell->deletionScore == max)
 		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col), row - 1, col, max));
 	if (cell->insertionScore == max)
 		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row, col - 1), row, col - 1, max));
-	if (cell->substitutionScore == max)
-		maxAdjacentSquares.push_back(DP_cellFull(table->GetCell(row - 1, col - 1), row - 1, col - 1, max));
+
 	return maxAdjacentSquares;
 }
 
-pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*> OptimalAlignment::TraceBackGlobal(int row, int col, Alignment* alignment)
+list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment* alignment2)
 {
+	//list<Alignment*>** memoize = new list<Alignment*> * [s1.length() + 1];
+	//for (int i = 0; i < s1.length() + 1; i++)
+	//	memoize[i] = new list<Alignment*>[s2.length()];
+	//	
+	bool complete = false;
+	int curRow = row2;
+	int curCol = col2;
+	int run = 0;
+	Alignment* curAlign = alignment2;
 
-	if (table->GetCellMax(row, col) > alignment->optimalScore)
-		alignment->optimalScore = table->GetCellMax(row, col);
+	list<Alignment*> completeAligns = list<Alignment*>();
 
-	pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*> returnP = pair<list<pair<DP_cellFull*, Alignment*>>, Alignment*>();
-
-	if (row == 0 && col == 0)
+	list<pair<DP_cellFull*, Alignment*>> ToDo = list<pair<DP_cellFull*, Alignment*>>();
+	do
 	{
-		returnP.second = alignment;
-		return returnP;
-	}
-	alignment->totalLength++;
-	list<DP_cellFull> maxAdjacentSquares = GetMaxAdjacentCells(row, col);
-	if (maxAdjacentSquares.empty())
-		return { };
+		if (table->GetCellMax(curRow, curCol) > curAlign->optimalScore)
+			curAlign->optimalScore = table->GetCellMax(curRow, curCol);
 
-	list<Alignment*> returnList = list<Alignment*>();
+		list<DP_cellFull> maxAdjacentSquares = GetMaxAdjacentCells(curRow, curCol);
 
-	for (auto fullCell : maxAdjacentSquares)
-	{
-		if (fullCell.row < row && fullCell.col < col)
+		for (auto fullCell : maxAdjacentSquares)
 		{
-			if (s1[row - 1] == s2[col - 1])
-				alignment->matches++;
+			if (fullCell.row != maxAdjacentSquares.back().row || fullCell.col != maxAdjacentSquares.back().col)
+			{
+				ToDo.push_front({ fullCell.DeepCopy(), curAlign->DeepCopy() });
+			}
 			else
-				alignment->mismatches++;
+			{
+				if (fullCell.row < curRow && fullCell.col < curCol)
+				{
+					if (s1[curRow - 1] == s2[curCol - 1])
+						curAlign->matches++;
+					else
+						curAlign->mismatches++;
 
-			alignment->AddS1(s1[row - 1]);
-			alignment->AddS2(s2[col - 1]);
+					curAlign->AddS1(s1[curRow - 1]);
+					curAlign->AddS2(s2[curCol - 1]);
+				}
+				else if (fullCell.row < curRow)
+				{
+					if (curAlign->s2.length() > 0 && curAlign->s2[0] != '-')
+						curAlign->openingGaps++;
+					curAlign->gaps++;
+					curAlign->AddS1(s1[curRow - 1]);
+					curAlign->AddS2('-');
+				}
+				else
+				{
+					if (curAlign->s2.length() > 0 && curAlign->s2[0] != '-')
+						curAlign->openingGaps++;
+					curAlign->gaps++;
+					curAlign->AddS1('-');
+					curAlign->AddS2(s2[curCol - 1]);
+				}
+				curRow = fullCell.row;
+				curCol = fullCell.col;
+			}
 		}
-		else if (fullCell.row < row)
+
+		if (curRow == 0 && curCol == 0)
 		{
-			if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
-				alignment->openingGaps++;
-			alignment->gaps++;
-			alignment->AddS1(s1[row - 1]);
-			alignment->AddS2('-');
+			run++;
+			if (completeAligns.empty())
+			{
+				completeAligns.push_front(curAlign);
+			}
+			else if (completeAligns.front()->GetScore(match, misMatch, h, g) < curAlign->GetScore(match, misMatch, h, g))
+			{
+				delete completeAligns.front();
+				completeAligns.pop_front();
+				completeAligns.push_front(curAlign);
+			}
+			else
+			{
+				delete curAlign;
+			}
+			
+			if (ToDo.empty())
+			{
+				complete = true;
+			}
+			else
+			{
+				curAlign = ToDo.front().second;
+				curRow = ToDo.front().first->row;
+				curCol = ToDo.front().first->col;
+				ToDo.pop_front();
+			}
 		}
-		else
-		{
-			if (alignment->s2.length() > 0 && alignment->s2[0] != '-')
-				alignment->openingGaps++;
-			alignment->gaps++;
-			alignment->AddS1('-');
-			alignment->AddS2(s2[col - 1]);
-		}
-		if (fullCell.row != maxAdjacentSquares.front().row || fullCell.col != maxAdjacentSquares.front().col)
-			returnP.first.push_back({ new DP_cellFull(fullCell), alignment });
-		else
-			returnP = TraceBackGlobal(fullCell.row, fullCell.col, alignment->DeepCopy());
 
-	}
+	} while (!complete);
 
-	return returnP;
+	return completeAligns;
 }
 
 list<Alignment*> OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignment)
