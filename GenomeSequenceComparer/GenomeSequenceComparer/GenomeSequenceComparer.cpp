@@ -6,72 +6,73 @@
 #include "NeedlemanWunsch.h"
 #include "AlignmentPrinter.h"
 #include "OptimalAlignmentLib.h"
-int main()
+#include "FileReader.h"
+int main(int argc, char* argv[])
 {
+	bool isGlobal = true;
+	string fileName;
+	fileName = argv[1];
+	if (argv[2][0] == 1)
+		isGlobal = false;
 
-	DPTable t(5, 5);
+	string parametersFileName = "";
+	if (argc > 3)
+		parametersFileName = argv[3];
 
-	//SmithWaterman smith("GATTACA","GCATGCU",1,-1,2,-1);
-	//smith.Run();
-	//auto q = smith.GetMaxStrings();
+	Parameters params = FileReader::ReadParameters("parameters.config.txt");
 
-	//NeedlemanWunsch needle("ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT", "ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTGCTAATAACCGAGAACGATTGACATTCCTCGTACAGCTACACGTACTCCGAT", 1, -2, -5, -2);
-	//needle.Run();
-	//list<Alignment*> qt = needle.GetMaxStrings();
-	//AlignmentPrinter printer = AlignmentPrinter(qt.front(), "test1.txt");
-	//for (auto j : qt)
-	//	printer.PrintAlignmentToFile(j);
-	//int max = 0;
-	//for (auto j : qt)
-	//{
-	//	if (j->GetScore(1, -2, -5, -2) > max)
-	//	{
-	//		max = j->GetScore(1, -2, -5, -2);
-	//	}
-	//}
-	//for (auto j : qt)
-	//{
-	//	if (j->GetScore(1, -2, -5, -2) == max)
-	//	{
-	//		printer.PrintAlignmentToFile(j);
-	//	}
-	//}
 
-	OptimalAlignment optim = OptimalAlignment("ACATGCTACACGTATCCGATACCCCGTAACCGATAACGATACACAGACCTCGTACGCTTGCTACAACGTACTCTATAACCGAGAACGATTGACATGCCTCGTACACATGCTACACGTACTCCGAT", "ACATGCGACACTACTCCGATACCCCGTAACCGATAACGATACAGAGACCTCGTACGCTTGCTAATAACCGAGAACGATTGACATTCCTCGTACAGCTACACGTACTCCGAT", 1, -2, -5, -2);
-	optim.RunSmithWaterman();
-	list<list<Alignment*>> qt = optim.GetLocalMaxStrings();
-	AlignmentPrinter printer = AlignmentPrinter(qt.front().front(), "test1.txt");
-	int max = 0;
-	for (auto k : qt)
+	MultiSequenceFasta sequenceFileInfo = FileReader::ReadFile("Opsin1_colorblindness_gene.fasta.txt");
+
+	OptimalAlignment optim = OptimalAlignment(sequenceFileInfo.s1, sequenceFileInfo.s2, params.match, params.mismatch, params.h, params.g);
+
+	if (isGlobal)
 	{
-		for (auto j : k)
+		optim.RunNeedlemanWunsch();
+		list<Alignment*> qt = optim.GetGlobalMaxStrings();
+		AlignmentPrinter printer = AlignmentPrinter(qt.front(), "test1.txt");
+		int max = 0;
+		for (auto j : qt)
 		{
-			if (j->GetScore(1, -2, -5, -2) > max)
+			if (j->GetScore(params.match, params.mismatch, params.h, params.g) > max)
 			{
-				max = j->GetScore(1, -2, -5, -2);
+				max = j->GetScore(params.match, params.mismatch, params.h, params.g);
+			}
+		}
+		for (auto j : qt)
+		{
+			if (j->GetScore(params.match, params.mismatch, params.h, params.g) == max)
+			{
+				printer.PrintAlignmentToFile(j, params, sequenceFileInfo);
 			}
 		}
 	}
-	for (auto k : qt)
+	else
 	{
-		for (auto j : k)
+		optim.RunSmithWaterman();
+		list<list<Alignment*>> qt = optim.GetLocalMaxStrings();
+		AlignmentPrinter printer = AlignmentPrinter(qt.front().front(), "test1.txt");
+		int max = 0;
+		for (auto k : qt)
 		{
-			if (j->GetScore(1, -2, -5, -2) == max)
+			for (auto j : k)
 			{
-				printer.PrintAlignmentToFile(j);
+				if (j->GetScore(1, -2, -5, -2) > max)
+				{
+					max = j->GetScore(1, -2, -5, -2);
+				}
+			}
+		}
+		for (auto k : qt)
+		{
+			for (auto j : k)
+			{
+				if (j->GetScore(1, -2, -5, -2) == max)
+				{
+					printer.PrintAlignmentToFile(j, params, sequenceFileInfo);
+				}
 			}
 		}
 	}
-	int b = 5;
+
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view error
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

@@ -160,6 +160,7 @@
     <ClInclude Include="Alignment.h" />
     <ClInclude Include="AlignmentPrinter.h" />
     <ClInclude Include="DPTable.h" />
+    <ClInclude Include="FileReader.h" />
     <ClInclude Include="NeedlemanWunsch.h" />
     <ClInclude Include="OptimalAlignmentLib.h" />
     <ClInclude Include="SmithWaterman.h" />

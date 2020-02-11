@@ -26,7 +26,7 @@ bool OptimalAlignment::RunNeedlemanWunsch()
 		for (int j = 0; j < s2.length() + 1; j++)
 			CalculateCell(i, j);
 
-	table->PrintTable();
+//	table->PrintTable();
 	return true;
 }
 
@@ -38,7 +38,7 @@ bool OptimalAlignment::RunSmithWaterman()
 		for (int j = 0; j < s2.length() + 1; j++)
 			CalculateCell(i, j, 0);
 
-	table->PrintTable();
+//	table->PrintTable();
 	return true;
 }
 
