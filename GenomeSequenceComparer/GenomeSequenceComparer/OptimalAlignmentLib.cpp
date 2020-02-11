@@ -175,7 +175,8 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment
 	//list<Alignment*>** memoize = new list<Alignment*> * [s1.length() + 1];
 	//for (int i = 0; i < s1.length() + 1; i++)
 	//	memoize[i] = new list<Alignment*>[s2.length()];
-	//	
+	//
+	bool firstPrint = true;
 	bool complete = false;
 	int curRow = row2;
 	int curCol = col2;
@@ -183,8 +184,8 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment
 	Alignment* curAlign = alignment2;
 
 	list<Alignment*> completeAligns = list<Alignment*>();
-
-	list<pair<DP_cellFull*, Alignment*>> ToDo = list<pair<DP_cellFull*, Alignment*>>();
+	pair<pair<DP_cellFull*, Alignment*>, int> curToDo = {{nullptr, nullptr}, 0};
+	list<pair<pair<DP_cellFull*, Alignment*>, int>> ToDo = list<pair<pair<DP_cellFull*, Alignment*>, int>>();
 	do
 	{
 		if (table->GetCellMax(curRow, curCol) > curAlign->optimalScore)
@@ -196,7 +197,12 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment
 		{
 			if (fullCell.row != maxAdjacentSquares.back().row || fullCell.col != maxAdjacentSquares.back().col)
 			{
-				ToDo.push_front({ fullCell.DeepCopy(), curAlign->DeepCopy() });
+				if (curToDo.second == 1)
+				{
+					cout << "Current Todo: " << ToDo.size() << endl;
+					firstPrint = false;
+				}
+				ToDo.push_front({{ fullCell.DeepCopy(), curAlign->DeepCopy() }, curToDo.second+1 });
 			}
 			else
 			{
@@ -255,9 +261,10 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment
 			}
 			else
 			{
-				curAlign = ToDo.front().second;
-				curRow = ToDo.front().first->row;
-				curCol = ToDo.front().first->col;
+				curToDo = ToDo.front();
+				curAlign = curToDo.first.second;
+				curRow = curToDo.first.first->row;
+				curCol = curToDo.first.first->col;
 				ToDo.pop_front();
 			}
 		}
