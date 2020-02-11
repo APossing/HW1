@@ -1,16 +1,15 @@
 #pragma once
-#include <string>
-#include "DPTable.h"
+#include <String>
 #include "Alignment.h"
-using namespace  std;
-
-class NeedlemanWunsch
+#include "DPTable.h"
+using namespace std;
+class OptimalAlignment
 {
 public:
-	NeedlemanWunsch(string s1, string s2, double match, double misMatch, double h, double g);
-	bool Run();
-	list<Alignment*> GetMaxStrings();
-
+	OptimalAlignment(string s1, string s2, double match, double misMatch, double h, double g);
+	bool RunNeedlemanWunsch();
+	bool RunSmithWaterman();
+	list<Alignment*> GetGlobalMaxStrings();
 private:
 	string s1;
 	string s2;
@@ -20,7 +19,9 @@ private:
 	double g;
 	DPTable* table;
 
+	void init();
 	DP_cell* CalculateCell(int row, int col);
+	DP_cell* CalculateCell(int row, int col, int min);
 	int GetMaxSubScore(int row, int col, int matchScore);
 	int GetMaxDeletionScore(int row, int col);
 	int GetMaxInsertionScore(int row, int col);

@@ -10,6 +10,13 @@ DPTable::DPTable(int xLength, int yLength)
 		table[i] = new DP_cell[numCols];
 }
 
+DPTable::~DPTable()
+{
+	for (int i = 0; i < numRows; i++)
+		delete[] table[i];
+	delete[] table;
+}
+
 DP_cell* DPTable::FillInCell(int row, int col, int subScore, int delScore, int insScore)
 {
 	if (!IsValidCell(row, col))

@@ -28,6 +28,7 @@ class DPTable
 {
 public:
 	DPTable(int xLength, int yLength);
+	~DPTable();
 	DP_cell* FillInCell(int row, int col, int score, int delScore, int insertScore);
 	DP_cell* GetCell(int row, int col);
 	int GetCellMax(int row, int col);

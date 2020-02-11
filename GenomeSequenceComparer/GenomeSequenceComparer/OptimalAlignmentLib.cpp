@@ -1,6 +1,6 @@
-#include "NeedlemanWunsch.h"
+#include "OptimalAlignmentLib.h"
 
-NeedlemanWunsch::NeedlemanWunsch(string s1, string s2, double match, double misMatch, double h, double g)
+OptimalAlignment::OptimalAlignment(string s1, string s2, double match, double misMatch, double h, double g)
 {
 	this->s1 = s1;
 	this->s2 = s2;
@@ -8,29 +8,46 @@ NeedlemanWunsch::NeedlemanWunsch(string s1, string s2, double match, double misM
 	this->misMatch = misMatch;
 	this->h = h;
 	this->g = g;
+	this->table = nullptr;
+}
+void OptimalAlignment::init()
+{
+	if (this->table != nullptr)
+		delete this->table;
 	this->table = new DPTable(s1.length() + 1, s2.length() + 1);
 }
 
-bool NeedlemanWunsch::Run()
+
+bool OptimalAlignment::RunNeedlemanWunsch()
 {
+	init();
+
 	for (int i = 0; i < s1.length() + 1; i++)
-	{
 		for (int j = 0; j < s2.length() + 1; j++)
-		{
 			CalculateCell(i, j);
-		}
-	}
 
 	table->PrintTable();
 	return true;
 }
 
-list<Alignment*> NeedlemanWunsch::GetMaxStrings()
+bool OptimalAlignment::RunSmithWaterman()
+{
+	init();
+
+	for (int i = 0; i < s1.length() + 1; i++)
+		for (int j = 0; j < s2.length() + 1; j++)
+			CalculateCell(i, j, 0);
+
+	table->PrintTable();
+	return true;
+}
+
+list<Alignment*> OptimalAlignment::GetGlobalMaxStrings()
 {
 	return TraceBack(s1.length(), s2.length(), new Alignment);
 }
 
-DP_cell* NeedlemanWunsch::CalculateCell(int row, int col)
+DP_cell* OptimalAlignment::CalculateCell(int row, int col)
 {
 	if (row == 0)
 		return table->FillInCell(row, col, -1 * col, -1 * col, -1 * col);
@@ -48,13 +65,39 @@ DP_cell* NeedlemanWunsch::CalculateCell(int row, int col)
 	return table->FillInCell(row, col, subScore, delScore, insScore);
 }
 
-int NeedlemanWunsch::GetMaxSubScore(int row, int col, int matchScore)
+DP_cell* OptimalAlignment::CalculateCell(int row, int col, int min)
+{
+	if (row == 0)
+		return table->FillInCell(row, col, -1 * col, -1 * col, -1 * col);
+	else if (col == 0)
+		return table->FillInCell(row, col, -1 * row, -1 * row, -1 * row);
+
+	int matchScore = misMatch;
+	if (s1[row - 1] == s2[col - 1])
+		matchScore = match;
+
+	int subScore = GetMaxSubScore(row, col, matchScore);
+	if (subScore < min)
+		subScore = min;
+
+	int delScore = GetMaxDeletionScore(row, col);
+	if (delScore < min)
+		delScore = min;
+
+	int insScore = GetMaxInsertionScore(row, col);
+	if (insScore < min)
+		insScore = min;
+
+	return table->FillInCell(row, col, subScore, delScore, insScore);
+}
+
+int OptimalAlignment::GetMaxSubScore(int row, int col, int matchScore)
 {
 	auto c = GetCalculatedCell(row - 1, col - 1);
 
 	return table->GetCellMax(c) + matchScore;
 }
-int NeedlemanWunsch::GetMaxDeletionScore(int row, int col)
+int OptimalAlignment::GetMaxDeletionScore(int row, int col)
 {
 	DP_cell* c = GetCalculatedCell(row - 1, col);
 	int max = c->deletionScore + g;
@@ -67,7 +110,7 @@ int NeedlemanWunsch::GetMaxDeletionScore(int row, int col)
 	return max;
 }
 
-int NeedlemanWunsch::GetMaxInsertionScore(int row, int col)
+int OptimalAlignment::GetMaxInsertionScore(int row, int col)
 {
 	DP_cell* c = GetCalculatedCell(row, col - 1);
 	int max = c->deletionScore + h + g;
@@ -80,7 +123,7 @@ int NeedlemanWunsch::GetMaxInsertionScore(int row, int col)
 	return max;
 }
 
-DP_cell* NeedlemanWunsch::GetCalculatedCell(int row, int col)
+DP_cell* OptimalAlignment::GetCalculatedCell(int row, int col)
 {
 	if (table->IsValidCell(row, col))
 	{
@@ -92,7 +135,7 @@ DP_cell* NeedlemanWunsch::GetCalculatedCell(int row, int col)
 	return nullptr;
 }
 
-list<DP_cellFull> NeedlemanWunsch::GetMaxAdjacentCells(int row, int col)
+list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col)
 {
 	list<DP_cellFull> maxAdjacentSquares = list<DP_cellFull>();
 	DP_cell* cell = table->GetCell(row, col);
@@ -106,7 +149,7 @@ list<DP_cellFull> NeedlemanWunsch::GetMaxAdjacentCells(int row, int col)
 	return maxAdjacentSquares;
 }
 
-list<Alignment*> NeedlemanWunsch::TraceBack(int row, int col, Alignment* alignment)
+list<Alignment*> OptimalAlignment::TraceBack(int row, int col, Alignment* alignment)
 {
 	if (row == 0 && col == 0)
 		return { alignment };
