@@ -153,20 +153,17 @@
     <ClCompile Include="AlignmentPrinter.cpp" />
     <ClCompile Include="DPTable.cpp" />
     <ClCompile Include="GenomeSequenceComparer.cpp" />
-    <ClCompile Include="NeedlemanWunsch.cpp" />
     <ClCompile Include="OptimalAlignmentLib.cpp" />
-    <ClCompile Include="SmithWaterman.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Alignment.h" />
     <ClInclude Include="AlignmentPrinter.h" />
     <ClInclude Include="DPTable.h" />
     <ClInclude Include="FileReader.h" />
-    <ClInclude Include="NeedlemanWunsch.h" />
     <ClInclude Include="OptimalAlignmentLib.h" />
-    <ClInclude Include="SmithWaterman.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Opsin1_colorblindness_gene.fasta.txt" />
     <Text Include="test1.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

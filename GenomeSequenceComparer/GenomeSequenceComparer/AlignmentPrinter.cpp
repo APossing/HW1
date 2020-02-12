@@ -1,30 +1,9 @@
 #include "AlignmentPrinter.h"
 
-AlignmentPrinter::AlignmentPrinter(Alignment* a, string fileName)
+void AlignmentPrinter::PrintAlignmentToFile(Alignment* alignment, Parameters params, MultiSequenceFasta sequenceInfo, string fileName)
 {
-	this->alignment = a;
-	this->fileName = fileName;
-
-	this->file = fstream();
-	this->file.open(this->fileName);
-}
-
-void AlignmentPrinter::PrintAlignmentToFile()
-{
-	file << this->alignment->s1 << endl;
-	char prev = ' ';
-	for (int i = 0; i < this->alignment->s1.length(); i++)
-	{
-		if (this->alignment->s1[i] == this->alignment->s2[i] && this->alignment->s1[i] != '-')
-			file << '|';
-		else
-			file << ' ';
-	}
-	file << endl;
-	file << this->alignment->s2 << endl;
-}
-void AlignmentPrinter::PrintAlignmentToFile(Alignment* a, Parameters params, MultiSequenceFasta sequenceInfo)
-{
+	fstream file = fstream(fileName);
+	
 	file << "Scores: match = " << params.match << ", mismatch = " << params.mismatch << ", h = " << params.h << ", g = " << params.g << endl << endl;
 	file << "Sequence 1 = \"" << sequenceInfo.name1 << "\", length = " << sequenceInfo.s1.length() << " characters" << endl;
 	file << "Sequence 2 = \"" << sequenceInfo.name2 << "\", length = " << sequenceInfo.s2.length() << " characters" << endl << endl;
@@ -34,45 +13,80 @@ void AlignmentPrinter::PrintAlignmentToFile(Alignment* a, Parameters params, Mul
 	int s1Count = 1;
 	int s2Count = 1;
 
-	for (int i = 0; i < a->s1.length() / 60 + 1; i++)
+	bool s2Big = false;
+	bool s1Big = false;
+	bool bothBig = false;
+
+	for (int i = 0; i < alignment->s1.length() / 60 + 1; i++)
 	{
-		file << "s1\t" << s1Count << "\t";
-		for (int j = 0; j < 60 && i * 60 + j < a->s1.length(); j++)
+		if (s2Count >= 1000 && s1Count < 1000)
 		{
-			file << a->s1[i * 60 + j];
-			if (a->s1[i * 60 + j] != '-')
+			s2Big = true;
+			s1Big = false;
+		}
+		else if (s2Count < 1000 && s1Count >= 1000)
+		{
+			s2Big = false;
+			s1Big = true;
+		}
+		else if (s2Count >= 1000 && s1Count >= 1000)
+		{
+			s2Big = false;
+			s1Big = false;
+			bothBig = true;
+		}
+
+		
+		if (s2Big)
+			file << "s1\t" << s1Count << "\t\t";
+		else if (s1Big)
+			file << "s1\t" << s1Count << "\t";
+		else if (bothBig)
+			file << "s1\t" << s1Count << "\t";
+		else
+			file << "s1\t" << s1Count << "\t\t";
+		for (int j = 0; j < 60 && i * 60 + j < alignment->s1.length(); j++)
+		{
+			file << alignment->s1[i * 60 + j];
+			if (alignment->s1[i * 60 + j] != '-')
 				s1Count++;
 		}
-		file << "\t" << s1Count << endl << "\t\t";
+		if (s1Big || s2Big || bothBig )
+			file << "\t" << s1Count-1 << endl << "\t\t\t";
+		else
+			file << "\t" << s1Count-1 << endl << "\t\t\t";
 
-		for (int j = 0; j < 60 && i * 60 + j < a->s1.length(); j++)
+		for (int j = 0; j < 60 && i * 60 + j < alignment->s1.length(); j++)
 		{
-			if (a->s1[i * 60 + j] == a->s2[i * 60 + j] && a->s1[i * 60 + j] != '-')
+			if (alignment->s1[i * 60 + j] == alignment->s2[i * 60 + j] && alignment->s1[i * 60 + j] != '-')
 				file << '|';
 			else
 				file << ' ';
 		}
 		file << endl;
+		if (s1Big)
+			file << "s2\t" << s2Count << "\t\t";
+		else if (s2Big)
+			file << "s2\t" << s2Count << "\t";
+		else if (bothBig)
+			file << "s2\t" << s2Count << "\t";
+		else
+			file << "s2\t" << s2Count << "\t\t";
 
-		file << "s2\t" << s2Count << "\t";
-		for (int j = 0; j < 60 && i * 60 + j < a->s2.length(); j++)
+
+		for (int j = 0; j < 60 && i * 60 + j < alignment->s2.length(); j++)
 		{
-			file << a->s2[i * 60 + j];
-			if (a->s2[i * 60 + j] != '-')
+			file << alignment->s2[i * 60 + j];
+			if (alignment->s2[i * 60 + j] != '-')
 				s2Count++;
 		}
-		file << "\t" << s2Count << endl << endl;
+		file << "\t" << s2Count-1 << endl << endl;
 	}
 	file << endl << endl << endl;
 
 	file << "report:" << endl << endl;
-	file << "global optimal score = " << a->optimalScore << endl << endl;
-	file << "number of: matches = " << a->matches << ", mismatches = " << a->mismatches << ", gaps = " << a->gaps << ", opening gaps = " << a->openingGaps << endl;
-	file << "identities = " << a->matches << "/" <<a->s1.length()<< "(" << (int)(a->IdentityPercentage()*100)<< "%), gaps = " << a->gaps << "/" << a->s1.length() << "(" << (int)(a->GapsPercentage() * 100) << "%)" <<endl;
-
-
-
-
-
+	file << "global optimal score = " << alignment->optimalScore << endl << endl;
+	file << "number of: matches = " << alignment->matches << ", mismatches = " << alignment->mismatches << ", gaps = " << alignment->gaps << ", opening gaps = " << alignment->openingGaps << endl;
+	file << "identities = " << alignment->matches << "/" <<alignment->s1.length()<< "(" << (int)(alignment->IdentityPercentage()*100)<< "%), gaps = " << alignment->gaps << "/" << alignment->s1.length() << "(" << (int)(alignment->GapsPercentage() * 100) << "%)" <<endl;
 
 }

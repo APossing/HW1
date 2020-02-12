@@ -1,6 +1,15 @@
 #pragma once
 #include <String>
 using namespace std;
+
+enum Direction
+{
+	up,
+	left,
+	diag
+};
+
+
 class Alignment
 {
 public:
