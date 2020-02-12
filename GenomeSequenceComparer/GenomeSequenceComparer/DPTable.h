@@ -19,7 +19,7 @@ struct DP_cell {
 		deletionScore = del;
 		insertionScore = ins;
 	}
-	DP_cell* DeepCopy()
+	DP_cell* DeepCopy() const
 	{
 		return new DP_cell(substitutionScore, deletionScore, insertionScore);
 	}
@@ -38,7 +38,7 @@ struct DP_cellFull {
 		this->row = row;
 		this->cell = cell;
 	}
-	DP_cellFull* DeepCopy()
+	DP_cellFull* DeepCopy() const
 	{
 		return new DP_cellFull(this->cell, this->row, this->col, this->max);
 	}
@@ -49,13 +49,13 @@ class DPTable
 public:
 	DPTable(int xLength, int yLength);
 	~DPTable();
-	DP_cell* FillInCell(int row, int col, int score, int delScore, int insertScore);
-	DP_cell* GetCell(int row, int col);
-	int GetCellMax(int row, int col);
-	int GetCellMax(DP_cell* cell);
-	bool IsValidCell(int row, int col);
-	void PrintTable();
-	list<DP_cellFull*> GetMaxCells();
+	DP_cell* FillInCell(int row, int col, int subScore, int delScore, int insScore) const;
+	DP_cell* GetCell(int row, int col) const;
+	int GetCellMax(int row, int col) const;
+	static int GetCellMax(DP_cell* cell);
+	bool IsValidCell(int row, int col) const;
+	void PrintTable() const;
+	list<DP_cellFull*> GetMaxCells() const;
 private:
 	DP_cell** table;
 	int numRows;

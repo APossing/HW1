@@ -16,23 +16,23 @@ public:
 	Alignment();
 	Alignment(int optimalScore);
 	Alignment(string s1, string s2, int optimalScore, int matches, int mismatches, int gaps, int openingGaps, int totalLength, bool hasBeenScored, int score);
-	Alignment* DeepCopy()
+	Alignment* DeepCopy() const
 	{
 		return new Alignment(s1, s2, optimalScore, matches, mismatches, gaps, openingGaps, totalLength, hasBeenScored, score);
 	}
 	void AddS1(char c);
 	void AddS2(char c);
 
-	double IdentityPercentage()
+	double IdentityPercentage() const
 	{
 		return (double)matches / totalLength;
 	}
-	double GapsPercentage()
+	double GapsPercentage() const
 	{
 		return (double)gaps / totalLength;
 	}
 
-	int GetScore(double match, double mismatch, double h, double g)
+	int GetScore(int match, int mismatch, int h, int g)
 	{
 		if (hasBeenScored)
 			return score;

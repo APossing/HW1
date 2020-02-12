@@ -91,9 +91,8 @@ public:
 		file >> line;
 		file >> params.g;
 
+		file.close();
 		return params;
 	}
-
-
 };
 

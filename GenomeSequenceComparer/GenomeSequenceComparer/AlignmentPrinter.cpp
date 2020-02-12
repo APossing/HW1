@@ -2,13 +2,11 @@
 
 void AlignmentPrinter::PrintAlignmentToFile(Alignment* alignment, Parameters params, MultiSequenceFasta sequenceInfo, string fileName)
 {
-	fstream file = fstream(fileName);
+	fstream file = fstream(fileName, std::fstream::out | std::fstream::trunc);
 	
 	file << "Scores: match = " << params.match << ", mismatch = " << params.mismatch << ", h = " << params.h << ", g = " << params.g << endl << endl;
 	file << "Sequence 1 = \"" << sequenceInfo.name1 << "\", length = " << sequenceInfo.s1.length() << " characters" << endl;
 	file << "Sequence 2 = \"" << sequenceInfo.name2 << "\", length = " << sequenceInfo.s2.length() << " characters" << endl << endl;
-
-	char prev = ' ';
 
 	int s1Count = 1;
 	int s2Count = 1;

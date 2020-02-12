@@ -6,7 +6,7 @@ using namespace std;
 class OptimalAlignment
 {
 public:
-	OptimalAlignment(string s1, string s2, double match, double misMatch, double h, double g);
+	OptimalAlignment(string s1, string s2, int match, int misMatch, int h, int g);
 	bool RunNeedlemanWunsch();
 	bool RunSmithWaterman();
 	Alignment* GetGlobalMaxStrings();
@@ -14,21 +14,22 @@ public:
 private:
 	string s1;
 	string s2;
-	double match;
-	double misMatch;
-	double h;
-	double g;
+	int match;
+	int misMatch;
+	int h;
+	int g;
 	DPTable* table;
 
 	void init();
 	DP_cell* CalculateCell(int row, int col);
 	DP_cell* CalculateCell(int row, int col, int min);
-	int GetMaxSubScore(int row, int col, int matchScore);
+	int GetMaxSubScore(int row, int col);
 	int GetMaxDeletionScore(int row, int col);
 	int GetMaxInsertionScore(int row, int col);
 	DP_cell* GetCalculatedCell(int row, int col);
 	Alignment* TraceBackGlobal(int row, int col, Alignment* alignment);
 	Alignment* TraceBackLocal(int row, int col, Alignment* alignment);
-	list<DP_cellFull> GetMaxAdjacentCells(int row, int col, Direction prevDirection);
+	list<DP_cellFull> GetMaxAdjacentCells(int row, int col, Direction prevDirection) const;
+	void AddPointsToAlignment(int curRow, int curCol, Alignment* alignment);
 };
 
