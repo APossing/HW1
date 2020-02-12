@@ -1,4 +1,6 @@
 #include "OptimalAlignmentLib.h"
+#include <vector>
+#include <omp.h>
 
 OptimalAlignment::OptimalAlignment(string s1, string s2, double match, double misMatch, double h, double g)
 {
@@ -176,18 +178,18 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment
 	//for (int i = 0; i < s1.length() + 1; i++)
 	//	memoize[i] = new list<Alignment*>[s2.length()];
 	//
-	bool firstPrint = true;
-	bool complete = false;
 	int curRow = row2;
 	int curCol = col2;
 	int run = 0;
 	Alignment* curAlign = alignment2;
 
 	list<Alignment*> completeAligns = list<Alignment*>();
-	pair<pair<DP_cellFull*, Alignment*>, int> curToDo = {{nullptr, nullptr}, 0};
-	list<pair<pair<DP_cellFull*, Alignment*>, int>> ToDo = list<pair<pair<DP_cellFull*, Alignment*>, int>>();
+	Alignment* curOptimalAlign = nullptr;
+	vector<pair<DP_cellFull*, Alignment*>> ToDo = vector<pair<DP_cellFull*, Alignment*>>();
+
 	do
 	{
+		//start first
 		if (table->GetCellMax(curRow, curCol) > curAlign->optimalScore)
 			curAlign->optimalScore = table->GetCellMax(curRow, curCol);
 
@@ -197,12 +199,7 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment
 		{
 			if (fullCell.row != maxAdjacentSquares.back().row || fullCell.col != maxAdjacentSquares.back().col)
 			{
-				if (curToDo.second == 1)
-				{
-					cout << "Current Todo: " << ToDo.size() << endl;
-					firstPrint = false;
-				}
-				ToDo.push_front({{ fullCell.DeepCopy(), curAlign->DeepCopy() }, curToDo.second+1 });
+				ToDo.push_back({ fullCell.DeepCopy(), curAlign->DeepCopy() });
 			}
 			else
 			{
@@ -236,42 +233,109 @@ list<Alignment*> OptimalAlignment::TraceBackGlobal(int row2, int col2, Alignment
 				curCol = fullCell.col;
 			}
 		}
+	} while (curRow != 0 && curCol != 0);
+	curOptimalAlign = curAlign;
 
-		if (curRow == 0 && curCol == 0)
+
+	omp_set_dynamic(0);     // disable dynamic teams
+	omp_set_num_threads(16); // Use p threads for all consecutive parallel regions
+	//cout << omp_get_num_threads() << endl;
+	//cout << omp_get_num_procs() << endl;
+	#pragma omp parallel for schedule(static) shared(ToDo)
+	for (int i = ToDo.size() - 1; i >= 0; i--)
+	{
+		cout << omp_get_thread_num() << endl;
+		bool complete = false;
+		Alignment* myCurAlignment = ToDo[i].second;
+		int myCurRow = ToDo[i].first->row;
+		int myCurCol = ToDo[i].first->col;
+
+		list<pair<DP_cellFull*, Alignment*>> myToDo = list<pair<DP_cellFull*, Alignment*>>();
+
+		do
 		{
-			run++;
-			if (completeAligns.empty())
-			{
-				completeAligns.push_front(curAlign);
-			}
-			else if (completeAligns.front()->GetScore(match, misMatch, h, g) < curAlign->GetScore(match, misMatch, h, g))
-			{
-				delete completeAligns.front();
-				completeAligns.pop_front();
-				completeAligns.push_front(curAlign);
-			}
-			else
-			{
-				delete curAlign;
-			}
-			
-			if (ToDo.empty())
-			{
-				complete = true;
-			}
-			else
-			{
-				curToDo = ToDo.front();
-				curAlign = curToDo.first.second;
-				curRow = curToDo.first.first->row;
-				curCol = curToDo.first.first->col;
-				ToDo.pop_front();
-			}
-		}
+			if (table->GetCellMax(myCurRow, myCurCol) > myCurAlignment->optimalScore)
+				myCurAlignment->optimalScore = table->GetCellMax(myCurRow, myCurCol);
 
-	} while (!complete);
+			list<DP_cellFull> maxAdjacentSquares = GetMaxAdjacentCells(myCurRow, myCurCol);
 
-	return completeAligns;
+			for (auto fullCell : maxAdjacentSquares)
+			{
+				if (fullCell.row != maxAdjacentSquares.back().row || fullCell.col != maxAdjacentSquares.back().col)
+				{
+					myToDo.push_front({ fullCell.DeepCopy(), myCurAlignment->DeepCopy() });
+				}
+				else
+				{
+					if (fullCell.row < myCurRow && fullCell.col < myCurCol)
+					{
+						if (s1[myCurRow - 1] == s2[myCurCol - 1])
+							myCurAlignment->matches++;
+						else
+							myCurAlignment->mismatches++;
+
+						myCurAlignment->AddS1(s1[myCurRow - 1]);
+						myCurAlignment->AddS2(s2[myCurCol - 1]);
+					}
+					else if (fullCell.row < myCurRow)
+					{
+						if (myCurAlignment->s2.length() > 0 && myCurAlignment->s2[0] != '-')
+							myCurAlignment->openingGaps++;
+						myCurAlignment->gaps++;
+						myCurAlignment->AddS1(s1[myCurRow - 1]);
+						myCurAlignment->AddS2('-');
+					}
+					else
+					{
+						if (myCurAlignment->s2.length() > 0 && myCurAlignment->s2[0] != '-')
+							myCurAlignment->openingGaps++;
+						myCurAlignment->gaps++;
+						myCurAlignment->AddS1('-');
+						myCurAlignment->AddS2(s2[myCurCol - 1]);
+					}
+					myCurRow = fullCell.row;
+					myCurCol = fullCell.col;
+				}
+			}
+
+			if (myCurRow == 0 && myCurCol == 0)
+			{
+				#pragma omp critical
+				{
+					run++;
+					if (curOptimalAlign->GetScore(match, misMatch, h, g) < myCurAlignment->GetScore(match, misMatch, h, g))
+					{
+						delete curOptimalAlign;
+						curOptimalAlign = myCurAlignment;
+					}
+					else
+					{
+						delete myCurAlignment;
+					}
+				}
+
+
+				if (myToDo.empty())
+				{
+					complete = true;
+				}
+				else
+				{
+					myCurAlignment = myToDo.front().second;
+					myCurRow = myToDo.front().first->row;
+					myCurCol = myToDo.front().first->col;
+					myToDo.pop_front();
+				}
+			}
+
+		} while (!complete);
+		cout << i << ":" << omp_get_thread_num() << endl;
+	}
+
+
+
+
+	return { curOptimalAlign };
 }
 
 list<Alignment*> OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignment)
