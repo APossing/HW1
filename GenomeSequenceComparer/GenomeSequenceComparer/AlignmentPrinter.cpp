@@ -83,7 +83,7 @@ void AlignmentPrinter::PrintAlignmentToFile(Alignment* alignment, Parameters par
 	file << endl << endl << endl;
 
 	file << "report:" << endl << endl;
-	file << "global optimal score = " << alignment->optimalScore << endl << endl;
+	file << "global optimal score = " << alignment->GetScore(params.match, params.mismatch, params.h, params.g) << endl << endl;
 	file << "number of: matches = " << alignment->matches << ", mismatches = " << alignment->mismatches << ", gaps = " << alignment->gaps << ", opening gaps = " << alignment->openingGaps << endl;
 	file << "identities = " << alignment->matches << "/" <<alignment->s1.length()<< "(" << (int)(alignment->IdentityPercentage()*100)<< "%), gaps = " << alignment->gaps << "/" << alignment->s1.length() << "(" << (int)(alignment->GapsPercentage() * 100) << "%)" <<endl;
 
