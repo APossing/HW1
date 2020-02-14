@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Opsin1_colorblindness_gene.fasta.txt" />
+    <Text Include="parameters.config.txt" />
     <Text Include="test1.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

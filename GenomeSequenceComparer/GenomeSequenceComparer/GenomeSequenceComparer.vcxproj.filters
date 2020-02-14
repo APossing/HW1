@@ -55,5 +55,8 @@
     <Text Include="Opsin1_colorblindness_gene.fasta.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="parameters.config.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

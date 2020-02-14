@@ -78,11 +78,12 @@ list<DP_cellFull*> DPTable::GetMaxCells() const
 	{
 		for (int col = 0; col < numCols; col++)
 		{
-			if (GetCellMax(&table[row][col]) < max)
+			int cellMax = GetCellMax(&table[row][col]);
+			if (cellMax < max)
 			{
 
 			}
-			else if (GetCellMax(&table[row][col]) > max)
+			else if (cellMax > max)
 			{
 				max = GetCellMax(&table[row][col]);
 				returnT = list<DP_cellFull*>{ new DP_cellFull(&table[row][col], row, col, max) };

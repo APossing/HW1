@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 		string fileName;
 		
 		fileName = argv[1];
-		if (argv[2][0] == 1)
+		if (argv[2][0] == '1')
 			isGlobal = false;
 
 		string parametersFileName;

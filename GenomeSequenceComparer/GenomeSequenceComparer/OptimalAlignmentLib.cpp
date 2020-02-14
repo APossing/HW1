@@ -39,7 +39,7 @@ bool OptimalAlignment::RunSmithWaterman()
 		for (int col = 0; col < s2.length() + 1; col++)
 			CalculateCell(row, col, 0);
 
-	//	table->PrintTable();
+	table->PrintTable();
 	return true;
 }
 
@@ -59,11 +59,12 @@ list<Alignment*> OptimalAlignment::GetLocalMaxStrings()
 DP_cell* OptimalAlignment::CalculateCell(int row, int col)
 {
 	if (row == 0 && col == 0)
-		return table->FillInCell(row, col, 0, 0, 0);
+		return table->FillInCell(row, col, 0, numeric_limits<int>::min() - h + 1, numeric_limits<int>::min() - h + 1);
 	if (row == 0)
-		return table->FillInCell(row, col, -1 * col, -1 * col, -1 * col);
+		return table->FillInCell(row, col, numeric_limits<int>::min() - h + 1, h + col + g, numeric_limits<int>::min() - h + 1);
 	if (col == 0)
-		return table->FillInCell(row, col, -1 * row, -1 * row, -1 * row);
+		return table->FillInCell(row, col, numeric_limits<int>::min() - h + 1, numeric_limits<int>::min() - h + 1, h + row * g);
+
 
 	int subScore = GetMaxSubScore(row, col);
 	int delScore = GetMaxDeletionScore(row, col);
@@ -151,6 +152,8 @@ list<DP_cellFull> OptimalAlignment::GetMaxAdjacentCells(int row, int col, Direct
 	}
 	const int max = table->GetCellMax(cell);
 
+	if (row == 0 && col == 0)
+		return {};
 	if (row == 0)
 	{
 		maxAdjacentSquares.emplace_back(table->GetCell(row, col - 1), row, col - 1, max);
@@ -242,6 +245,9 @@ Alignment* OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignme
 	do
 	{
 		maxCell = GetMaxAdjacentCells(row, col, prevDirection).front();
+		if (maxCell.max == 0)
+			break;
+
 		if (maxCell.row < row && maxCell.col < col)
 		{
 			//substitution
@@ -267,7 +273,7 @@ Alignment* OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignme
 		row = maxCell.row;
 		col = maxCell.col;
 		AddPointsToAlignment(row, col, alignment);
-	} while (maxCell.max != 0);
+	} while (row != 0 && col != 0);
 
 	return alignment;
 }
