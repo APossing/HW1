@@ -27,7 +27,7 @@ bool OptimalAlignment::RunNeedlemanWunsch()
 		for (int col = 0; col < s2.length() + 1; col++)
 			CalculateCell(row, col);
 
-	//	table->PrintTable();
+	//table->PrintTable();
 	return true;
 }
 
@@ -39,7 +39,7 @@ bool OptimalAlignment::RunSmithWaterman()
 		for (int col = 0; col < s2.length() + 1; col++)
 			CalculateCell(row, col, 0);
 
-	table->PrintTable();
+	//table->PrintTable();
 	return true;
 }
 
@@ -59,12 +59,11 @@ list<Alignment*> OptimalAlignment::GetLocalMaxStrings()
 DP_cell* OptimalAlignment::CalculateCell(int row, int col)
 {
 	if (row == 0 && col == 0)
-		return table->FillInCell(row, col, 0, numeric_limits<int>::min() - h + 1, numeric_limits<int>::min() - h + 1);
+		return table->FillInCell(row, col, 0, numeric_limits<int>::min() - h - g + 1, numeric_limits<int>::min() - h - g + 1);
 	if (row == 0)
-		return table->FillInCell(row, col, numeric_limits<int>::min() - h + 1, h + col + g, numeric_limits<int>::min() - h + 1);
+		return table->FillInCell(row, col, numeric_limits<int>::min() - h - g + 1, h + col * g, numeric_limits<int>::min() - h - g + 1);
 	if (col == 0)
-		return table->FillInCell(row, col, numeric_limits<int>::min() - h + 1, numeric_limits<int>::min() - h + 1, h + row * g);
-
+		return table->FillInCell(row, col, numeric_limits<int>::min() - h - g + 1, numeric_limits<int>::min() - h - g + 1, h + row * g);
 
 	int subScore = GetMaxSubScore(row, col);
 	int delScore = GetMaxDeletionScore(row, col);
