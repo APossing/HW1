@@ -1,5 +1,4 @@
 #pragma once
-#include <String>
 #include "Alignment.h"
 #include "DPTable.h"
 using namespace std;

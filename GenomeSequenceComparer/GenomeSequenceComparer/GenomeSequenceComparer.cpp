@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 		if (argc > 3)
 			parametersFileName = argv[3];
 		else
-			parametersFileName = "parameters.config.txt";
+			parametersFileName = "parameters.config";
 
 		Parameters params = FileReader::ReadParameters(parametersFileName);
 
@@ -32,12 +32,14 @@ int main(int argc, char* argv[])
 
 		if (isGlobal)
 		{
+			cout << "Running NeedlemanWunsch" << endl;
 			optimLib.RunNeedlemanWunsch();
 			Alignment* optimalAlignment = optimLib.GetGlobalMaxStrings();
 			AlignmentPrinter::PrintAlignmentToFile(optimalAlignment, params, sequenceFileInfo, "output.txt");
 		}
 		else
 		{
+			cout << "Running SmithWaterman" << endl;
 			optimLib.RunSmithWaterman();
 			list<Alignment*> optimalAlignments = optimLib.GetLocalMaxStrings();
 			for (auto alignment : optimalAlignments)

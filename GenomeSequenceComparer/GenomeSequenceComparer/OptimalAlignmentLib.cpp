@@ -1,6 +1,6 @@
 #include "OptimalAlignmentLib.h"
 #include <vector>
-#include <omp.h>
+#include <limits>
 
 OptimalAlignment::OptimalAlignment(string s1, string s2, int match, int misMatch, int h, int g)
 {
@@ -58,12 +58,13 @@ list<Alignment*> OptimalAlignment::GetLocalMaxStrings()
 
 DP_cell* OptimalAlignment::CalculateCell(int row, int col)
 {
+	int minValue = numeric_limits<int>::min() - h - g + 1;
 	if (row == 0 && col == 0)
-		return table->FillInCell(row, col, 0, numeric_limits<int>::min() - h - g + 1, numeric_limits<int>::min() - h - g + 1);
+		return table->FillInCell(row, col, 0, minValue, minValue);
 	if (row == 0)
-		return table->FillInCell(row, col, numeric_limits<int>::min() - h - g + 1, h + col * g, numeric_limits<int>::min() - h - g + 1);
+		return table->FillInCell(row, col, minValue, h + col * g, minValue);
 	if (col == 0)
-		return table->FillInCell(row, col, numeric_limits<int>::min() - h - g + 1, numeric_limits<int>::min() - h - g + 1, h + row * g);
+		return table->FillInCell(row, col, minValue, minValue, h + row * g);
 
 	int subScore = GetMaxSubScore(row, col);
 	int delScore = GetMaxDeletionScore(row, col);

@@ -1,5 +1,4 @@
 #pragma once
-#include <string.h>
 #include "FileReader.h"
 #include "Alignment.h"
 using namespace std;
