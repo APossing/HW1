@@ -7,17 +7,20 @@ struct DP_cell {
 	int substitutionScore;
 	int deletionScore;
 	int insertionScore;
+	bool set;
 	DP_cell()
 	{
 		substitutionScore=0;
 		deletionScore=0;
 		insertionScore=0;
+		set = false;
 	}
 	DP_cell(int sub, int del, int ins)
 	{
 		substitutionScore = sub;
 		deletionScore = del;
 		insertionScore = ins;
+		set = true;
 	}
 	DP_cell* DeepCopy() const
 	{

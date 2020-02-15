@@ -8,6 +8,7 @@ class OptimalAlignment
 public:
 	OptimalAlignment(string s1, string s2, int match, int misMatch, int h, int g);
 	bool RunNeedlemanWunsch();
+	bool RunNeedlemanWunschParallel();
 	bool RunSmithWaterman();
 	Alignment* GetGlobalMaxStrings();
 	list<Alignment*> GetLocalMaxStrings();

@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 
 		if (isGlobal)
 		{
-			optimLib.RunNeedlemanWunsch();
+			optimLib.RunNeedlemanWunschParallel();
 			Alignment* optimalAlignment = optimLib.GetGlobalMaxStrings();
 			AlignmentPrinter::PrintAlignmentToFile(optimalAlignment, params, sequenceFileInfo, "test1.txt");
 		}

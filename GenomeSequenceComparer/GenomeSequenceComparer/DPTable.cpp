@@ -21,10 +21,7 @@ DP_cell* DPTable::FillInCell(int row, int col, int subScore, int delScore, int i
 {
 	if (!IsValidCell(row, col))
 		return nullptr;
-	table[row][col] = DP_cell();
-	table[row][col].substitutionScore = subScore;
-	table[row][col].deletionScore = delScore;
-	table[row][col].insertionScore = insScore;
+	table[row][col] = DP_cell(subScore, delScore, insScore);
 	return &table[row][col];
 }
 

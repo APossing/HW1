@@ -19,6 +19,22 @@ void OptimalAlignment::init()
 }
 
 
+bool OptimalAlignment::RunNeedlemanWunschParallel()
+{
+	init();
+	#pragma  omp parallel for schedule(dynamic, 1)
+	for (int row = 0; row < s1.length() + 1; row++)
+	{
+		for (int col = 0; col < s2.length() + 1; col++)
+			CalculateCell(row, col);
+	}
+
+	//table->PrintTable();
+
+	return true;
+}
+
+
 bool OptimalAlignment::RunNeedlemanWunsch()
 {
 	init();
@@ -58,12 +74,13 @@ list<Alignment*> OptimalAlignment::GetLocalMaxStrings()
 
 DP_cell* OptimalAlignment::CalculateCell(int row, int col)
 {
+	int minValue = numeric_limits<int>::min() - h - g + 1;
 	if (row == 0 && col == 0)
-		return table->FillInCell(row, col, 0, numeric_limits<int>::min() - h - g + 1, numeric_limits<int>::min() - h - g + 1);
+		return table->FillInCell(row, col, 0, minValue, minValue);
 	if (row == 0)
-		return table->FillInCell(row, col, numeric_limits<int>::min() - h - g + 1, h + col * g, numeric_limits<int>::min() - h - g + 1);
+		return table->FillInCell(row, col, minValue, h + col * g, minValue);
 	if (col == 0)
-		return table->FillInCell(row, col, numeric_limits<int>::min() - h - g + 1, numeric_limits<int>::min() - h - g + 1, h + row * g);
+		return table->FillInCell(row, col, minValue, minValue, h + row * g);
 
 	int subScore = GetMaxSubScore(row, col);
 	int delScore = GetMaxDeletionScore(row, col);
@@ -94,12 +111,17 @@ int OptimalAlignment::GetMaxSubScore(int row, int col)
 		matchScore = match;
 
 	auto diagCell = GetCalculatedCell(row - 1, col - 1);
-
+	while (!diagCell->set)
+	{
+	}
 	return DPTable::GetCellMax(diagCell) + matchScore;
 }
 int OptimalAlignment::GetMaxDeletionScore(int row, int col)
 {
 	DP_cell* upCell = GetCalculatedCell(row - 1, col);
+	while (!upCell->set)
+	{
+	}
 	int max = upCell->deletionScore + g;
 
 	if (upCell->insertionScore + h + g > max)
@@ -113,6 +135,9 @@ int OptimalAlignment::GetMaxDeletionScore(int row, int col)
 int OptimalAlignment::GetMaxInsertionScore(int row, int col)
 {
 	DP_cell* leftCell = GetCalculatedCell(row, col - 1);
+	while (!leftCell->set)
+	{
+	}
 	int max = leftCell->deletionScore + h + g;
 
 	if (leftCell->insertionScore + g > max)
@@ -128,8 +153,8 @@ DP_cell* OptimalAlignment::GetCalculatedCell(int row, int col)
 	if (table->IsValidCell(row, col))
 	{
 		DP_cell* cell = table->GetCell(row, col);
-		if (cell == nullptr)
-			cell = CalculateCell(row, col);
+		//if (cell == nullptr)
+		//	cell = CalculateCell(row, col);
 		return cell;
 	}
 	return nullptr;
