@@ -1,6 +1,9 @@
 #include "OptimalAlignmentLib.h"
 #include <vector>
 #include <omp.h>
+#include <chrono> 
+#include <algorithm>
+using namespace std::chrono;
 
 OptimalAlignment::OptimalAlignment(string s1, string s2, int match, int misMatch, int h, int g)
 {
@@ -19,18 +22,33 @@ void OptimalAlignment::init()
 }
 
 
-bool OptimalAlignment::RunNeedlemanWunschParallel()
+bool OptimalAlignment::RunNeedlemanWunschParallel(int numThreads)
 {
 	init();
-	#pragma  omp parallel for schedule(dynamic, 1)
+	
+	omp_set_num_threads(numThreads);
+	#pragma omp parallel for schedule(dynamic, 1)
 	for (int row = 0; row < s1.length() + 1; row++)
 	{
 		for (int col = 0; col < s2.length() + 1; col++)
 			CalculateCell(row, col);
 	}
-
 	//table->PrintTable();
 
+	return true;
+}
+
+bool OptimalAlignment::RunSmithWatermanParallel(int numThreads)
+{
+	init();
+	
+	omp_set_num_threads(numThreads);
+	#pragma omp parallel for schedule(dynamic, 1)
+	for (int row = 0; row < s1.length() + 1; row++)
+		for (int col = 0; col < s2.length() + 1; col++)
+			CalculateCell(row, col, 0);
+
+	//table->PrintTable();
 	return true;
 }
 
@@ -42,7 +60,7 @@ bool OptimalAlignment::RunNeedlemanWunsch()
 	for (int row = 0; row < s1.length() + 1; row++)
 		for (int col = 0; col < s2.length() + 1; col++)
 			CalculateCell(row, col);
-
+	
 	//table->PrintTable();
 	return true;
 }
@@ -91,17 +109,22 @@ DP_cell* OptimalAlignment::CalculateCell(int row, int col)
 
 DP_cell* OptimalAlignment::CalculateCell(int row, int col, int min)
 {
-	DP_cell* cell = CalculateCell(row, col);
-	if (cell->deletionScore < min)
-		cell->deletionScore = min;
+	int minValue = numeric_limits<int>::min() - h - g + 1;
+	if (row == 0 && col == 0)
+		return table->FillInCell(row, col, 0, minValue, minValue);
+	if (row == 0)
+		return table->FillInCell(row, col, minValue, 0, minValue);
+	if (col == 0)
+		return table->FillInCell(row, col, minValue, minValue, 0);
+	int subScore = GetMaxSubScore(row, col);
+	int delScore = GetMaxDeletionScore(row, col);
+	int insScore = GetMaxInsertionScore(row, col);
 
-	if (cell->insertionScore < min)
-		cell->insertionScore = min;
+	subScore = max(subScore, min);
+	delScore = max(delScore, min);
+	insScore = max(insScore, min);
 
-	if (cell->substitutionScore < min)
-		cell->substitutionScore = min;
-
-	return cell;
+	return table->FillInCell(row, col,subScore, delScore, insScore);
 }
 
 int OptimalAlignment::GetMaxSubScore(int row, int col)
@@ -266,7 +289,7 @@ Alignment* OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignme
 	DP_cellFull maxCell(nullptr, 0, 0, 0);
 	Direction prevDirection = Direction::diag;
 
-	do
+	while (row != 0 && col != 0)
 	{
 		maxCell = GetMaxAdjacentCells(row, col, prevDirection).front();
 		if (maxCell.max == 0)
@@ -297,7 +320,7 @@ Alignment* OptimalAlignment::TraceBackLocal(int row, int col, Alignment* alignme
 		row = maxCell.row;
 		col = maxCell.col;
 		AddPointsToAlignment(row, col, alignment);
-	} while (row != 0 && col != 0);
+	}
 
 	return alignment;
 }

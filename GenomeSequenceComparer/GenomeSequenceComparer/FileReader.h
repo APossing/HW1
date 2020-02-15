@@ -1,6 +1,6 @@
 #pragma once
 using namespace std;
-#include <String>
+#include <string>
 #include <fstream>
 
 struct Parameters

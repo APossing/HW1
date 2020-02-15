@@ -1,5 +1,4 @@
 #pragma once
-#include <String>
 #include "Alignment.h"
 #include "DPTable.h"
 using namespace std;
@@ -8,7 +7,8 @@ class OptimalAlignment
 public:
 	OptimalAlignment(string s1, string s2, int match, int misMatch, int h, int g);
 	bool RunNeedlemanWunsch();
-	bool RunNeedlemanWunschParallel();
+	bool RunNeedlemanWunschParallel(int numThreads);
+	bool RunSmithWatermanParallel(int numThreads);
 	bool RunSmithWaterman();
 	Alignment* GetGlobalMaxStrings();
 	list<Alignment*> GetLocalMaxStrings();

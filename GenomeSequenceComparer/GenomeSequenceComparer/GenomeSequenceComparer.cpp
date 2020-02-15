@@ -1,51 +1,64 @@
 // GenomeSequenceComparer.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
-#include <iostream>
 #include "AlignmentPrinter.h"
 #include "OptimalAlignmentLib.h"
 #include "FileReader.h"
+#include "ProgramSettings.h"
+
 int main(int argc, char* argv[])
 {
-	if (argc < 3)
-		cout << "Please add parameters... <input file containing both s1 and s2> <0: global, 1: local> <optional: path to parameters config file>";
-	else
+	ProgramSettings* settings = ProgramSettings::GetProgramSettings(argc, argv);
+	if (settings == nullptr)
+		return 0;
+	Parameters params = FileReader::ReadParameters(settings->parametersFileName);
+	
+	MultiSequenceFasta sequenceFileInfo = FileReader::ReadFile(settings->inFileName);
+	
+	OptimalAlignment optimLib = OptimalAlignment(sequenceFileInfo.s1, sequenceFileInfo.s2, params.match, params.mismatch, params.h, params.g);
+
+	if (settings->isGlobal)
 	{
-		bool isGlobal = true;
-		string fileName;
-		
-		fileName = argv[1];
-		if (argv[2][0] == '1')
-			isGlobal = false;
-
-		string parametersFileName;
-		if (argc > 3)
-			parametersFileName = argv[3];
-		else
-			parametersFileName = "parameters.config.txt";
-
-		Parameters params = FileReader::ReadParameters(parametersFileName);
-
-		MultiSequenceFasta sequenceFileInfo = FileReader::ReadFile("Opsin1_colorblindness_gene.fasta.txt");
-
-		OptimalAlignment optimLib = OptimalAlignment(sequenceFileInfo.s1, sequenceFileInfo.s2, params.match, params.mismatch, params.h, params.g);
-
-		if (isGlobal)
+		if (settings->isParallel)
 		{
-			optimLib.RunNeedlemanWunschParallel();
+			cout << "Running NeedlemanWunsch parallel with " << settings->threadCount << " threads" << endl;
+			optimLib.RunNeedlemanWunschParallel(settings->threadCount);
 			Alignment* optimalAlignment = optimLib.GetGlobalMaxStrings();
-			AlignmentPrinter::PrintAlignmentToFile(optimalAlignment, params, sequenceFileInfo, "test1.txt");
+			AlignmentPrinter::PrintAlignmentToFile(optimalAlignment, params, sequenceFileInfo, "output.txt");
 		}
 		else
 		{
+			cout << "Running NeedlemanWunsch" << endl;
+
+			optimLib.RunNeedlemanWunsch();
+			Alignment* optimalAlignment = optimLib.GetGlobalMaxStrings();
+			AlignmentPrinter::PrintAlignmentToFile(optimalAlignment, params, sequenceFileInfo, "output.txt");
+		}
+	}
+	else
+	{
+		if (settings->isParallel)
+		{
+			cout << "Running SmithWaterman parallel with " << settings->threadCount << " threads" << endl;
+			optimLib.RunSmithWatermanParallel(settings->threadCount);
+			list<Alignment*> optimalAlignments = optimLib.GetLocalMaxStrings();
+			for (auto alignment : optimalAlignments)
+			{
+				AlignmentPrinter::PrintAlignmentToFile(alignment, params, sequenceFileInfo, "output.txt");
+			}
+		}
+		else
+		{
+			cout << "Running SmithWaterman" << endl;
+			
 			optimLib.RunSmithWaterman();
 			list<Alignment*> optimalAlignments = optimLib.GetLocalMaxStrings();
 			for (auto alignment : optimalAlignments)
 			{
-				AlignmentPrinter::PrintAlignmentToFile(alignment, params, sequenceFileInfo, "test1.txt");
-
+				AlignmentPrinter::PrintAlignmentToFile(alignment, params, sequenceFileInfo, "output.txt");
 			}
 		}
+
 	}
-	return 0;
+	return 1;
 }

@@ -162,6 +162,7 @@
     <ClInclude Include="DPTable.h" />
     <ClInclude Include="FileReader.h" />
     <ClInclude Include="OptimalAlignmentLib.h" />
+    <ClInclude Include="ProgramSettings.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Opsin1_colorblindness_gene.fasta.txt" />
