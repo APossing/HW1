@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 
 		Parameters params = FileReader::ReadParameters(parametersFileName);
 
-		MultiSequenceFasta sequenceFileInfo = FileReader::ReadFile("Opsin1_colorblindness_gene.fasta.txt");
+		MultiSequenceFasta sequenceFileInfo = FileReader::ReadFile(fileName);
 
 		OptimalAlignment optimLib = OptimalAlignment(sequenceFileInfo.s1, sequenceFileInfo.s2, params.match, params.mismatch, params.h, params.g);
 
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 		{
 			optimLib.RunNeedlemanWunsch();
 			Alignment* optimalAlignment = optimLib.GetGlobalMaxStrings();
-			AlignmentPrinter::PrintAlignmentToFile(optimalAlignment, params, sequenceFileInfo, "test1.txt");
+			AlignmentPrinter::PrintAlignmentToFile(optimalAlignment, params, sequenceFileInfo, "output.txt");
 		}
 		else
 		{
@@ -42,8 +42,7 @@ int main(int argc, char* argv[])
 			list<Alignment*> optimalAlignments = optimLib.GetLocalMaxStrings();
 			for (auto alignment : optimalAlignments)
 			{
-				AlignmentPrinter::PrintAlignmentToFile(alignment, params, sequenceFileInfo, "test1.txt");
-
+				AlignmentPrinter::PrintAlignmentToFile(alignment, params, sequenceFileInfo, "output.txt");
 			}
 		}
 	}
