@@ -169,6 +169,9 @@
     <Text Include="parameters.config.txt" />
     <Text Include="test1.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="parameters.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

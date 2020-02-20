@@ -1,12 +1,13 @@
 #include "AlignmentPrinter.h"
+#include <iostream>
 
 void AlignmentPrinter::PrintAlignmentToFile(Alignment* alignment, Parameters params, MultiSequenceFasta sequenceInfo, string fileName)
 {
-	fstream file = fstream(fileName, std::fstream::out | std::fstream::trunc);
+	//fstream cout = fstream(fileName, std::fstream::out | std::fstream::trunc);
 	
-	file << "Scores: match = " << params.match << ", mismatch = " << params.mismatch << ", h = " << params.h << ", g = " << params.g << endl << endl;
-	file << "Sequence 1 = \"" << sequenceInfo.name1 << "\", length = " << sequenceInfo.s1.length() << " characters" << endl;
-	file << "Sequence 2 = \"" << sequenceInfo.name2 << "\", length = " << sequenceInfo.s2.length() << " characters" << endl << endl;
+	cout << "Scores: match = " << params.match << ", mismatch = " << params.mismatch << ", h = " << params.h << ", g = " << params.g << endl << endl;
+	cout << "Sequence 1 = \"" << sequenceInfo.name1 << "\", length = " << sequenceInfo.s1.length() << " characters" << endl;
+	cout << "Sequence 2 = \"" << sequenceInfo.name2 << "\", length = " << sequenceInfo.s2.length() << " characters" << endl << endl;
 
 	int s1Count = 1;
 	int s2Count = 1;
@@ -36,55 +37,55 @@ void AlignmentPrinter::PrintAlignmentToFile(Alignment* alignment, Parameters par
 
 		
 		if (s2Big)
-			file << "s1\t" << s1Count << "\t\t";
+			cout << "s1\t" << s1Count << "\t";
 		else if (s1Big)
-			file << "s1\t" << s1Count << "\t";
+			cout << "s1\t" << s1Count << "\t";
 		else if (bothBig)
-			file << "s1\t" << s1Count << "\t";
+			cout << "s1\t" << s1Count << "\t";
 		else
-			file << "s1\t" << s1Count << "\t\t";
+			cout << "s1\t" << s1Count << "\t";
 		for (int j = 0; j < 60 && i * 60 + j < alignment->s1.length(); j++)
 		{
-			file << alignment->s1[i * 60 + j];
+			cout << alignment->s1[i * 60 + j];
 			if (alignment->s1[i * 60 + j] != '-')
 				s1Count++;
 		}
 		if (s1Big || s2Big || bothBig )
-			file << "\t" << s1Count-1 << endl << "\t\t\t";
+			cout << "\t" << s1Count-1 << endl << "\t\t";
 		else
-			file << "\t" << s1Count-1 << endl << "\t\t\t";
+			cout << "\t" << s1Count-1 << endl << "\t\t";
 
 		for (int j = 0; j < 60 && i * 60 + j < alignment->s1.length(); j++)
 		{
 			if (alignment->s1[i * 60 + j] == alignment->s2[i * 60 + j] && alignment->s1[i * 60 + j] != '-')
-				file << '|';
+				cout << '|';
 			else
-				file << ' ';
+				cout << ' ';
 		}
-		file << endl;
+		cout << endl;
 		if (s1Big)
-			file << "s2\t" << s2Count << "\t\t";
+			cout << "s2\t" << s2Count << "\t";
 		else if (s2Big)
-			file << "s2\t" << s2Count << "\t";
+			cout << "s2\t" << s2Count << "\t";
 		else if (bothBig)
-			file << "s2\t" << s2Count << "\t";
+			cout << "s2\t" << s2Count << "\t";
 		else
-			file << "s2\t" << s2Count << "\t\t";
+			cout << "s2\t" << s2Count << "\t";
 
 
 		for (int j = 0; j < 60 && i * 60 + j < alignment->s2.length(); j++)
 		{
-			file << alignment->s2[i * 60 + j];
+			cout << alignment->s2[i * 60 + j];
 			if (alignment->s2[i * 60 + j] != '-')
 				s2Count++;
 		}
-		file << "\t" << s2Count-1 << endl << endl;
+		cout << "\t" << s2Count-1 << endl << endl;
 	}
-	file << endl << endl << endl;
+	cout << endl << endl << endl;
 
-	file << "report:" << endl << endl;
-	file << "global optimal score = " << alignment->GetScore(params.match, params.mismatch, params.h, params.g) << endl << endl;
-	file << "number of: matches = " << alignment->matches << ", mismatches = " << alignment->mismatches << ", gaps = " << alignment->gaps << ", opening gaps = " << alignment->openingGaps << endl;
-	file << "identities = " << alignment->matches << "/" <<alignment->s1.length()<< "(" << (int)(alignment->IdentityPercentage()*100)<< "%), gaps = " << alignment->gaps << "/" << alignment->s1.length() << "(" << (int)(alignment->GapsPercentage() * 100) << "%)" <<endl;
-	file.close();
+	cout << "report:" << endl << endl;
+	cout << "global optimal score = " << alignment->GetScore(params.match, params.mismatch, params.h, params.g) << endl << endl;
+	cout << "number of: matches = " << alignment->matches << ", mismatches = " << alignment->mismatches << ", gaps = " << alignment->gaps << ", opening gaps = " << alignment->openingGaps << endl;
+	cout << "identities = " << alignment->matches << "/" <<alignment->s1.length()<< "(" << (int)(alignment->IdentityPercentage()*100)<< "%), gaps = " << alignment->gaps << "/" << alignment->s1.length() << "(" << (int)(alignment->GapsPercentage() * 100) << "%)" <<endl;
+	//cout.close();
 }
